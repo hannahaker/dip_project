@@ -63,13 +63,30 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
     if( target.init_points() == 0 )
         return false;
 
+    target.init_voronoi();
+//    target.display_voronoi();
+
+    printf("---------- Start -------------\n");
+    //hausdorff using voronoi surface
+    distances = directed_hausdorff(model.points, target.voronoi);
+    printf("model to target .20: %f\n", distances[f*distances.size()]);
+    printf("-----------------------------\n");
+
+    //hausdorff using voronoi mask 
+    target.init_voronoi_mask();
+    distances = directed_hausdorff(model.points, target.voronoi);
+    printf("model to target .20: %f\n", distances[f*distances.size()]);
+    printf("-----------------------------\n");
+
+    //hausdorff withouth voronoi surface
     distances = directed_hausdorff(model.points, target.points);
     printf("model to target .20: %f\n", distances[f*distances.size()]);
     printf("-----------------------------\n");
 
-    distances = directed_hausdorff(target.points, model.points);
-    printf("target to model .20: %f\n", distances[f*distances.size()]);
-    printf("-----------------------------\n");
+//    distances = directed_hausdorff(target.points, model.points);
+//    printf("target to model .20: %f\n", distances[f*distances.size()]);
+//    printf("-----------------------------\n");
+    printf("--------- End ----------------\n");
 
 
 //    image.DrawLine(5, 200, 5, 5, Pixel(0,255,0));

@@ -3,7 +3,31 @@
 Image_Model::Image_Model( Image& img )
 {
     image = img;
+
+    cols = image.Width();
+    rows = image.Height();
+
+    //allocate memory for voronoi surface
+    voronoi = (double**) malloc(cols * sizeof(double*));
+    if(voronoi == NULL)
+        exit(1);
+    for( unsigned int i = 0; i < cols; i++ )
+    {
+        voronoi[i] = (double*) malloc(rows * sizeof(double));
+        if(voronoi[i] == NULL)
+            exit(1);
+    }
+
+    //initialize voronoi with all infinity
+    for(unsigned int c = 0; c < cols; c++)
+        for(unsigned int r = 0; r < rows; r++)
+            voronoi[c][r] = DBL_MAX;
+
+
     init_points();
+    trans.x = 0;
+    trans.y = 0;
+    trans.scale = 1.0;
 }
 
 //assuming sobel edge has been applied
@@ -30,22 +54,190 @@ unsigned int Image_Model::init_points()
     return points.size();
 }
 
+//populate voronoi surface with distances the the nearest points.
+//Using the mask greatly reduces computation time, However:
+//the mask is only an approximation to the euclidian distance.
+//There is about a 2% error that is introduced using this 3x3 mask.
+//This is explained by Gunilla Borgefors in: 
+//"Distance Transformations in Digital Images"
+//TO DO: Make the mask and apply it
+void Image_Model::init_voronoi_mask()
+{
+    point pt;
+    point p;
+    queue<point> temp;
+    double mask;
+
+    //initialize voronoi with all -1
+    for(unsigned int c = 0; c < cols; c++)
+        for(unsigned int r = 0; r < rows; r++)
+            voronoi[c][r] = -1;
+
+    //init voronoi with points
+    for(unsigned int i = 0; i < points.size(); i++)
+        voronoi[points[i].x][points[i].y] = 0;
+
+    clock_t t = clock();
+
+    //initialize the queue
+    for(unsigned int i = 0; i < points.size(); i++)
+        temp.push(points[i]);
+
+    //Do wavefront algorithm to find distances
+    while(!temp.empty()) 
+    {
+        pt = temp.front();
+           
+        //loop through the neighborhood
+        for(int x = pt.x - 1; x <= pt.x+1; x++)
+        {
+            //skip point if out of the x range
+            if(x < 0 || x >= (int)cols)
+                continue;
+
+            for(int y = pt.y - 1; y <= pt.y+1; y++)
+            {
+                //skip point if out of the y range
+                if(y < 0 || y >= (int)rows)
+                    continue;
+                
+                //compute and apply mask: voronoi[pt.x][pt.y] + 1
+                mask = voronoi[pt.x][pt.y] + 1;
+                
+                //if voronoi not set, set it and push point on the queue
+                if(voronoi[x][y] < 0)
+                {
+                    p.x = x;
+                    p.y = y;
+                    voronoi[x][y] = mask;   //applay mask!!
+                    temp.push(p);
+                }
+                //voronoi set, but computed smaller dist, reset it
+                else if( voronoi[x][y] > mask )
+                    voronoi[x][y] = mask;
+            }
+        }
+        temp.pop();
+    }
+   printf("time to calculate voronoi surface (mask): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+
+}
+
+//populate voronoi surface with distances the the nearest points
+void Image_Model::init_voronoi()
+{
+//    double mask[9] = {
+//                        1.3507, 1.0, 1.35707,
+//                        1.0, 0, 1.0,
+//                        1.3507, 1.0, 1.35707,
+//                     };
+    clock_t t = clock();
+    point pt;
+    vector<queue<point> > temp;
+    double dist;
+    bool done = false;
+    unsigned int size;
+
+    //initialize vector of queues
+    temp.resize(points.size());
+    for(unsigned int i = 0; i < points.size(); i++)
+        temp[i].push(points[i]);
+
+
+    //Do wavefront algorithm to find distances
+   while(!done) 
+   {
+       done = true;
+
+       //For each point
+       for( unsigned int i = 0; i < points.size(); i++)
+       {
+           size = temp[i].size();
+
+           //do one iteration
+           for( unsigned int j = 0; j < size; j++)
+           {
+
+               pt = temp[i].front();
+               dist = euclidean_dist( pt, points[i] );
+//               printf("(%d,%d): %f\n", points[i].x, points[i].y, dist);
+                
+               if( dist < voronoi[pt.x][pt.y] )
+               {
+                   voronoi[pt.x][pt.y] = dist;
+                   push_neighbors( temp[i], pt );
+                   done = false;
+               }
+                
+               temp[i].pop();
+           }
+       }
+   }
+   printf("time to calculate voronoi surface (euclidean): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+}
+
+//used to check validity of voronoi surface
+void Image_Model::display_voronoi()
+{
+    for(unsigned int i = 0; i < cols; i++)
+    {
+        for(unsigned int j = 0; j < rows; j++)
+        {
+            if(voronoi[i][0] > 99999 )
+                printf("DBL_MAX\n");
+//            printf("(%d,%d): %f\n", i, j, voronoi[i][j]);
+        }
+    }
+}
+
+//This is a helper function for the original init_voronoi
+int Image_Model::push_neighbors(queue<point> &q, point p)
+{
+    point temp = p;
+    int count = 0;
+
+    //left point
+    temp.x = p.x-1;
+    if( temp.x >= 0  && voronoi[temp.x][temp.y] > 99999 )
+    {
+        q.push(temp);
+        count++;
+    }
+
+    //right point
+    temp.x = p.x+1;
+    if( temp.x < (int)cols && voronoi[temp.x][temp.y] > 99999 )
+    {
+        q.push(temp);
+        count++;
+    }
+
+    //set x back to center
+    temp.x = p.x;
+
+    //upper point
+    temp.y = p.y-1;
+    if( temp.y >= 0 && voronoi[temp.x][temp.y] > 99999 )
+    {
+        q.push(temp);
+        count++;
+    }
+
+    //lower point
+    temp.y = p.y+1;
+    if( temp.y < (int)rows && voronoi[temp.x][temp.y] > 99999 )
+    {
+        q.push(temp);
+        count++;
+    }
+
+    return count;
+}
+
 //rescale image close to the size of the given image
 bool Image_Model::match(Image& img)
 {
-    double widthFactor;
-    double heightFactor;
-    int r = image.Height();
-    int c = image.Width();
-
-    widthFactor = (double)image.Width()/(double)img.Width();
-    heightFactor = (double)image.Height()/(double)img.Height();
-
-    r = r/heightFactor;
-    c = c/widthFactor;
-    
-    if ( r < 1 || r > 16384 || c < 1 || c > 16384 ) return false;
-    rescale( image, r, c );
+    rescale( image, img.Height(), img.Width() );
 
     return true;
 }
@@ -67,29 +259,86 @@ bool Image_Model::thin()
     return true;
 }
 
+Image_Model::~Image_Model()
+{
+    for( unsigned int i = 0; i < cols; i++ )
+        free( voronoi[i] );
+    free( voronoi );
+}
+
 double euclidean_dist(point A, point B)
 {
     return sqrt( pow(A.x - B.x, 2) + pow(A.y - B.y, 2));
 }
 
+//Forward Hausdorff:
 //returns a list of the directed hausorff distances.  An ordered list with 
-//best matching distances first
-vector<double> directed_hausdorff(vector<point>& model, vector<point>& target)
+//best matching distances first. This is ORDERS of magnitueds FASTER 
+//than the original hausdorff distance calculation.
+vector<double> directed_hausdorff(vector<point>& pts, double** surface)
 {
+    clock_t t = clock();
+    vector<double> distance;
+
+    //make sure there are points to process
+    if(pts.size() == 0)
+        return distance;
+
+    for(unsigned int i = 0; i < pts.size(); i++)
+        distance.push_back(surface[pts[i].x][pts[i].y]);
+
+    sort(distance.begin(), distance.end());
+    cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
+
+   printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+
+    return distance;
+}
+
+//Reverse Hausdorff:
+//returns a list of the directed hausorff distances.  An ordered list with 
+//best matching distances first. This is ORDERS of magnitueds FASTER 
+//than the original hausdorff distance calculation.
+vector<double> directed_hausdorff(double** surface, vector<point>& pts)
+{
+    clock_t t = clock();
+    vector<double> distance;
+
+    //make sure there are points to process
+    if(pts.size() == 0)
+        return distance;
+
+    for(unsigned int i = 0; i < pts.size(); i++)
+        distance.push_back(surface[pts[i].x][pts[i].y]);
+
+    sort(distance.begin(), distance.end());
+    cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
+
+   printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+
+    return distance;
+}
+
+//Hausdorff WITHOUT voronoi surface:
+//This is ORDERS of magnitudes SLOWER than using the voronoi surface
+//as a look up table for distances.
+vector<double> directed_hausdorff(vector<point> &B, vector<point>& A)
+{
+    clock_t t = clock();
     double max = -1;
     double min = 9999;
     double dist;
     vector<double> distance;
 
-    if(target.size() == 0)
+    if(A.size() == 0)
         return distance;
 
-    //find maximum of the smallest distances from the model to the target
-    for(unsigned int i = 0; i < model.size(); i++)
+    //find maximum of the smallest distances from B to A
+    for(unsigned int i = 0; i < B.size(); i++)
     {
-        for(unsigned int j = 0; j < target.size(); j++)
+        for(unsigned int j = 0; j < A.size(); j++)
         {
-            dist = euclidean_dist(model[i], target[j]);
+            dist = euclidean_dist(B[i], A[j]);
             if(dist < min)
             {
                 min = dist;
@@ -102,13 +351,15 @@ vector<double> directed_hausdorff(vector<point>& model, vector<point>& target)
             max = min;
         }
 
-        //save the the smallest distance from model[i] to target
+        //save the the smallest distance from B[i] to A
         distance.push_back(min);
         min = 9999;
     }
 
     sort(distance.begin(), distance.end());
     cout << "Hausdorff Distance: " << distance.back() << endl;
+
+   printf("time to calculate hausdorff: %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
     return distance;
 }
@@ -130,3 +381,4 @@ bool equal(Image& image1, Image& image2)
 
     return true;
 }
+
