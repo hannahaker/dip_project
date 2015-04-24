@@ -402,3 +402,10 @@ queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
     }
     return matches;
 }
+
+int calcGamma( tsObject tsObj)
+{
+
+    int gamma = 0;
+    return gamma;
+}
