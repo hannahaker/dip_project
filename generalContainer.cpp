@@ -110,3 +110,54 @@ vector<tsObject> decomp( Image I, Image M, int t, float k = 1.0, int alpha = 1 )
 
     return tsList ;
 }
+
+// SOME VALUE CONTROL FUNCTIONS TO ASSIST CONTROL FOR SIZE, SKEW, AND SHEAR
+
+//// determinant can be used to prevent reflected models, models too large/too small
+//double determinant( tuple )
+//{
+//    return ( a_00 * a_11 ) - ( a_01 * a_10 ) ;
+//}
+
+
+//// return a value to control for skew. higher value, higher skew
+//double skew( tuple )
+//{
+//    float one = pow( ( pow( a_00, 2) + pow(a_10, 2)) , 0.5) /
+//                pow( ( pow( a_01, 2) + pow(a_11, 2)) , 0.5) ;
+
+//    float two = pow( ( pow( a_01, 2) + pow(a_11, 2)) , 0.5) /
+//                pow( ( pow( a_00, 2) + pow(a_10, 2)) , 0.5) ;
+
+//    int maxValue = max( one, two ) ;
+
+//    return maxValue ;
+//}
+
+//// return a value to control for shear. higher value, higher shear
+//double shear( tuple )
+//{
+//    double numer = abs( ( a_00 * a_01) + ( a_10 * a_11 ) ) ;
+
+//    double denom = pow( ( a_00, 2 ) + ( a_10, 2 ) , 0.5 ) *
+//                   pow( ( a_01, 2 ) + ( a_11, 2 ) , 0.5 ) ;
+
+//    return numer / denom ;
+//}
+
+
+//// Just a stab at the transform
+//model transform( tuple, model )
+//{
+//    // not an implemented object!!
+//    tuple transformTuple ;
+
+//    double a_00 = scale_x * cos( theta ) ;
+//    double a_01 = scale_y * -sin( theta ) ;
+//    double a_10 = scale_x * sin( theta ) ;
+//    double a_11 = scale_y * cos( theta ) ;
+
+//    x = ( a_00 * x ) + ( a_01 * y ) + tx ;
+//    y = ( a_10 * x ) + ( a_11 * y ) + ty ;
+
+//}
