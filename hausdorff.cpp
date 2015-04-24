@@ -382,3 +382,23 @@ bool equal(Image& image1, Image& image2)
     return true;
 }
 
+queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
+{
+    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
+    int gamma = 0;
+    //gamma = calcGamma(tsObj);
+    queue<tsObject> matches = new vector<tsObject>;
+    matches.push_back(tsObj);
+    //while( cellsize(matches.front())!=0)
+    while (!matches.isEmpty())
+    {
+        //gamma = calcGamma(matches.front());
+        //if ( isInteresting( matches.front(), image, model )
+        //{
+        //matches.add( divide(matches.front()));
+        //}
+        matches.pop_front();
+
+    }
+    return matches;
+}
