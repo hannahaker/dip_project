@@ -11,6 +11,7 @@ Modifications:
 
 // QtImageLib requires interface (qtip.h) as well as implementation (qtip.cpp)
 #include "qtip.h"
+#include "tsObject.h"
 #include "hausdorff.h"
 #include <iostream>
 #include <cmath>
@@ -40,33 +41,38 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 
     //resize target image to match model image and
     //reinitialize the points
-    target.match(model.image);
+    // Taking out match so we are not resizing image
+    //target.match(model.image);
 
     //smooth image to get better result of sobel edge detection
     smoothGaussian( target.image, 2 );
     displayImage(target.image, "Gaussian Smoothed Image");
 
-    //find edges
+    // find edges
     sobel( target.image );
     displayImage(target.image, "Sobel Image");
 
-    //prepare image for thinning 
+    // prepare image for thinning
     binaryThreshold( target.image, 50 );
     displayImage(target.image, "Thresholded Image");
 
-    //Successive thinnings until there is no more cahnge.
+    // Successive thinnings until there is no more cahnge.
     //This allows a smaller set of points to work with for the Hausdorff
     target.thin();
     displayImage(target.image, "Thinnned image");
 
-    //get the target points from the image
+    // get the target points from the image
     if( target.init_points() == 0 )
         return false;
 
+    // calculate the voronoi surface of both target and model
     target.init_voronoi_mask();
     model.init_voronoi_mask();
 //    target.init_voronoi();
 //    target.display_voronoi();
+
+
+
 
     printf("---------- Start -------------\n");
     //hausdorff using voronoi surface

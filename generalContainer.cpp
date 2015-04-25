@@ -1,7 +1,7 @@
 // THIS FILE IS TO BE ADDED TO OTHER FILES LATER
 // IT IS ONLY TO HOLD FUNCTIONS AS A STAGING AREA
 #include <tsObject.h>
-#include <hausdorf.h>
+#include <hausdorff.h>
 #include <qtip.h>
 
 int getGamma( tsObject tranfSpace )
@@ -11,9 +11,9 @@ int getGamma( tsObject tranfSpace )
                       ( tranfSpace.transYMax - tranfSpace.transYMin )/2 +
                       ( tranfSpace.scaleYMax - tranfSpace.scaleYMin ) ) ;
 
-    int gamma = pow( coords[0] , 2 ) + pow( coords[1] , 2 ) ;
+    int gamma = ceil( pow( coords[0] , 2.0 ) + pow( coords[1] , 2.0 ) ) ;
 
-    gamma = pow( gamma, 0.5 ) ;
+    gamma = pow( gamma, 0.5 );
 
     return gamma ;
 }
@@ -56,7 +56,7 @@ vector<tsObject> divideSpace( tsObject trfSpace )
     return subTransformSpace ;
 }
 
-vector<tsObject> decomp( Image I, Image M, int t, float k = 1.0, int alpha = 1 )
+vector<tsObject> decomp( I, Image M, int t, float k = 1.0, int alpha = 1 )
 {
     int cell ;
     int imageRows = I.Height() ;

@@ -7,6 +7,9 @@ HEADERS += \
 SOURCES += \
     generalContainer.cpp \
     qtip.cpp \
-    hausdorff.cpp
+    hausdorff.cpp \
+    tsObject.cpp
 
-CONFIG += qtimagelib
+CONFIG += \
+    qtimagelib \
+    c++11
