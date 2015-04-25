@@ -1,15 +1,12 @@
 #ifndef TSOBJECT_H
 #define TSOBJECT_H
 
-
-
 struct tsObject
 {
     // METHODS
 
     // CONSTRUCTORS
-    tsObject( tXMin, tXMax, tYMin, tYMax,
-              sXMin = 1, sXMax = 1, sYMin = 1, sYMax = 1) ;
+    tsObject( tXMin, tXMax, tYMin, tYMax, sXMin = 1, sXMax = 1, sYMin = 1, sYMax = 1) ;
 
     int transXMin ;
     int transXMax ;
@@ -63,7 +60,4 @@ tsObject( tXMin, tXMax, tYMin, tYMax,
 }
 
 
-
-
-
-#endif // TSOBJECT_H
+#endif //TSOBJECT_H

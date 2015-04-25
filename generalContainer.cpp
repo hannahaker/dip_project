@@ -1,6 +1,7 @@
 // THIS FILE IS TO BE ADDED TO OTHER FILES LATER
 // IT IS ONLY TO HOLD FUNCTIONS AS A STAGING AREA
 #include <tsObject.h>
+#include <hausdorf.h>
 #include <qtip.h>
 
 int getGamma( tsObject tranfSpace )
