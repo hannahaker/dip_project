@@ -1,5 +1,10 @@
 #include "hausdorff.h"
 
+/************************************************************************
+   Function: Image_Model Constructor
+   Author: Zachary Pierson
+   Description: Constructs Image_Model object from Image
+ ************************************************************************/
 Image_Model::Image_Model( Image& img )
 {
     image = img;
@@ -7,7 +12,7 @@ Image_Model::Image_Model( Image& img )
     cols = image.Width();
     rows = image.Height();
 
-    //allocate memory for voronoi surface
+    //allocate memory for voronoi surface, to be filled later with init_voronoi_mask
     voronoi = (double**) malloc(cols * sizeof(double*));
     if(voronoi == NULL)
         exit(1);
@@ -25,8 +30,13 @@ Image_Model::Image_Model( Image& img )
     trans.scale = 1.0;
 }
 
-//assuming sobel edge has been applied
-//store all (edge) points for the Huasdorff algorithm
+
+/************************************************************************
+   Function: Image_Model init_points
+   Author: Zachary Pierson
+   Description: Assuming sobel edge has been applied, store all (edge)
+        points for the Huasdorff algorithm
+ ************************************************************************/
 unsigned int Image_Model::init_points()
 {
     unsigned int r, c;
@@ -50,14 +60,15 @@ unsigned int Image_Model::init_points()
 }
 
 
-
-
-//populate voronoi surface with distances the the nearest points.
-//Using the mask reduces computation time by about half, However:
-//the mask is only an approximation to the euclidian distance.
-//There is about a 2% error that is introduced using this 3x3 mask.
-//This is explained by Gunilla Borgefors in: 
-//"Distance Transformations in Digital Images"
+/************************************************************************
+   Function: Image_Model init_voronoi_mask
+   Author: Zachary Pierson
+   Description: Populate voronoi surface with distances the the nearest points.
+        Using the mask reduces computation time by about half, However: the mask
+        is only an approximation to the euclidian distance. There is about a 2%
+        error that is introduced using this 3x3 mask. This is explained by Gunilla
+        Borgefors in: "Distance Transformations in Digital Images"
+ ************************************************************************/
 void Image_Model::init_voronoi_mask()
 {
     point pt;
@@ -123,9 +134,14 @@ void Image_Model::init_voronoi_mask()
 
 }
 
-//populate voronoi surface with distances to the nearest points
-//DO NOT USE: there is a bug and the distances are not correct!
-//TO DO: Fix bug
+
+/************************************************************************
+   Function: Image_Model init_voronoi
+   Author: Zachary Pierson
+   Description: Populate voronoi surface with distances to the nearest points
+   DO NOT USE: there is a bug and the distances are not correct!
+   TO DO: Fix bug
+ ************************************************************************/
 void Image_Model::init_voronoi()
 {
     clock_t t = clock();
@@ -176,7 +192,12 @@ void Image_Model::init_voronoi()
    printf("time to calculate voronoi surface (euclidean): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 }
 
-//used to check validity of voronoi surface
+
+/************************************************************************
+   Function: Image_Model display_voronoi
+   Author: Zachary Pierson
+   Description: Used to check validity of voronoi surface
+ ************************************************************************/
 void Image_Model::display_voronoi()
 {
     for(unsigned int i = 0; i < cols; i++)
@@ -189,7 +210,11 @@ void Image_Model::display_voronoi()
     }
 }
 
-//This is a helper function for the original init_voronoi
+/************************************************************************
+   Function: Image_Model push_neighbors
+   Author: Zachary Pierson
+   Description: This is a helper function for the original init_voronoi
+ ************************************************************************/
 int Image_Model::push_neighbors(queue<point> &q, point p)
 {
     point temp = p;
@@ -233,7 +258,12 @@ int Image_Model::push_neighbors(queue<point> &q, point p)
     return count;
 }
 
-//rescale image close to the size of the given image
+
+/************************************************************************
+   Function: Image_Model match
+   Author: Zachary Pierson
+   Description: Rescale image close to the size of the given image
+ ************************************************************************/
 bool Image_Model::match(Image& img)
 {
     rescale( image, img.Height(), img.Width() );
@@ -241,8 +271,13 @@ bool Image_Model::match(Image& img)
     return true;
 }
 
-//Successive thinnings until there is no more cahnge.
-//This allows a smaller set of points to work with for the Hausdorff
+
+/************************************************************************
+   Function: Image_Model thin
+   Author: Zachary Pierson
+   Description: Successive thinnings until there is no more change. This
+        allows a smaller set of points to work with for the Hausdorff
+ ************************************************************************/
 bool Image_Model::thin()
 {
     Image prev(image);
@@ -258,6 +293,12 @@ bool Image_Model::thin()
     return true;
 }
 
+
+/************************************************************************
+   Function: Image_Model Destructor
+   Author: Zachary Pierson
+   Description: Frees memory allocated for voronoi surface
+ ************************************************************************/
 Image_Model::~Image_Model()
 {
     for( unsigned int i = 0; i < cols; i++ )
@@ -265,15 +306,25 @@ Image_Model::~Image_Model()
     free( voronoi );
 }
 
+/************************************************************************
+   Function: euclidean_dist
+   Author: Zachary Pierson
+   Description: calculates the Euclidean Distance between two points
+ ************************************************************************/
 double euclidean_dist(point A, point B)
 {
     return sqrt( pow(A.x - B.x, 2) + pow(A.y - B.y, 2));
 }
 
-//Forward Hausdorff:
-//returns a list of the directed hausorff distances.  An ordered list with 
-//best matching distances first. This is ORDERS of magnitueds FASTER 
-//than the original hausdorff distance calculation.
+
+/************************************************************************
+   Function: Forward Hausdorff
+   Author: Zachary Pierson
+   Description: Returns a list of the directed hausorff distances.  An ordered
+        list with best matching distances first. This is ORDERS of magnitueds
+        FASTER than the original hausdorff distance calculation. Uses voronoi
+        surface to faster calculate Hausdorff values.
+ ************************************************************************/
 vector<double> forward_hausdorff(vector<point>& pts, double** surface)
 {
     clock_t t = clock();
@@ -294,11 +345,15 @@ vector<double> forward_hausdorff(vector<point>& pts, double** surface)
     return distance;
 }
 
-//Box Reverse Hausdorff:
-//returns a list of the directed hausorff distances.  An ordered list with 
-//best matching distances first. This is ORDERS of magnitueds FASTER 
-//than the original hausdorff distance calculation.
-//TO DO: need to implement
+
+/************************************************************************
+   Function: Box Reverse Hausdorff
+   Author: Zachary Pierson
+   Description: Box Reverse Hausdorff. Returns a list of the directed hausorff
+        distances.  An ordered list with best matching distances first. This is
+        ORDERS of magnitueds FASTER than the original hausdorff distance calculation.
+   TO DO: need to implement
+ ************************************************************************/
 vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax, int Ymax )
 {
     clock_t t = clock();
@@ -325,9 +380,14 @@ vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax,
     return distance;
 }
 
-//Hausdorff WITHOUT voronoi surface:
-//This is ORDERS of magnitudes SLOWER than using the voronoi surface
-//as a look up table for distances.
+
+/************************************************************************
+   Function: Directed Hausdorff
+   Author: Zachary Pierson
+   Description: Hausdorff WITHOUT voronoi surface. This is ORDERS of
+        magnitudes SLOWER than using the voronoi surface as a look up
+        table for distances.
+ ************************************************************************/
 vector<double> directed_hausdorff(vector<point> &B, vector<point>& A)
 {
     clock_t t = clock();
@@ -370,6 +430,11 @@ vector<double> directed_hausdorff(vector<point> &B, vector<point>& A)
     return distance;
 }
 
+/************************************************************************
+   Function: Equal
+   Author: Zachary Pierson
+   Description: Checks to see if two images are the same
+ ************************************************************************/
 bool equal(Image& image1, Image& image2)
 {
     if(image1.Width() != image2.Width() || image1.Height() != image2.Height())
@@ -388,6 +453,12 @@ bool equal(Image& image1, Image& image2)
     return true;
 }
 
+
+/************************************************************************
+   Function: Decomp
+   Author: Hannah Aker
+   Description: Finds interesting transformation spaces
+ ************************************************************************/
 //queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
 //{
 //    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
