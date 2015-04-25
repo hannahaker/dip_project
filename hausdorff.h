@@ -49,10 +49,10 @@ class Image_Model
 };
 
 double euclidean_dist(point A, point B);
-vector<double> directed_hausdorff(vector<point>& pts, double** surface);
-vector<double> directed_hausdorff(double** surface, vector<point>& pts);
+vector<double> forward_hausdorff(vector<point>& pts, double** surface);
+vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax, int Ymax );
 vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
 bool equal(Image& image1, Image& image2);
 
-queue<point> decomp(Image_Model& image, Image_Model& model, int scale);
-int calcGamma( tsObject tsObj);
+//queue<point> decomp(Image_Model& image, Image_Model& model, int scale);
+//int calcGamma( tsObject tsObj);

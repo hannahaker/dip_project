@@ -18,11 +18,6 @@ Image_Model::Image_Model( Image& img )
             exit(1);
     }
 
-    //initialize voronoi with all infinity
-    for(unsigned int c = 0; c < cols; c++)
-        for(unsigned int r = 0; r < rows; r++)
-            voronoi[c][r] = DBL_MAX;
-
 
     init_points();
     trans.x = 0;
@@ -54,19 +49,24 @@ unsigned int Image_Model::init_points()
     return points.size();
 }
 
+
+
+
 //populate voronoi surface with distances the the nearest points.
-//Using the mask greatly reduces computation time, However:
+//Using the mask reduces computation time by about half, However:
 //the mask is only an approximation to the euclidian distance.
 //There is about a 2% error that is introduced using this 3x3 mask.
 //This is explained by Gunilla Borgefors in: 
 //"Distance Transformations in Digital Images"
-//TO DO: Make the mask and apply it
 void Image_Model::init_voronoi_mask()
 {
     point pt;
     point p;
     queue<point> temp;
-    double mask;
+    double val;
+    double mask[3][3] = {{1.3507, 1.0, 1.35707},
+                        {1.0, 0, 1.0},
+                        {1.3507, 1.0, 1.35707}};
 
     //initialize voronoi with all -1
     for(unsigned int c = 0; c < cols; c++)
@@ -101,20 +101,20 @@ void Image_Model::init_voronoi_mask()
                 if(y < 0 || y >= (int)rows)
                     continue;
                 
-                //compute and apply mask: voronoi[pt.x][pt.y] + 1
-                mask = voronoi[pt.x][pt.y] + 1;
+                //compute and apply mask: voronoi[pt.x][pt.y] + mask
+                val = voronoi[pt.x][pt.y] + mask[(x-pt.x)+1][(y-pt.y)+1];
                 
                 //if voronoi not set, set it and push point on the queue
                 if(voronoi[x][y] < 0)
                 {
                     p.x = x;
                     p.y = y;
-                    voronoi[x][y] = mask;   //applay mask!!
+                    voronoi[x][y] = val;   //applay mask!!
                     temp.push(p);
                 }
                 //voronoi set, but computed smaller dist, reset it
-                else if( voronoi[x][y] > mask )
-                    voronoi[x][y] = mask;
+                else if( voronoi[x][y] > val )
+                    voronoi[x][y] = val;
             }
         }
         temp.pop();
@@ -123,20 +123,22 @@ void Image_Model::init_voronoi_mask()
 
 }
 
-//populate voronoi surface with distances the the nearest points
+//populate voronoi surface with distances to the nearest points
+//DO NOT USE: there is a bug and the distances are not correct!
+//TO DO: Fix bug
 void Image_Model::init_voronoi()
 {
-//    double mask[9] = {
-//                        1.3507, 1.0, 1.35707,
-//                        1.0, 0, 1.0,
-//                        1.3507, 1.0, 1.35707,
-//                     };
     clock_t t = clock();
     point pt;
     vector<queue<point> > temp;
     double dist;
     bool done = false;
     unsigned int size;
+
+    //initialize voronoi with all infinity
+    for(unsigned int c = 0; c < cols; c++)
+        for(unsigned int r = 0; r < rows; r++)
+            voronoi[c][r] = DBL_MAX;
 
     //initialize vector of queues
     temp.resize(points.size());
@@ -157,10 +159,8 @@ void Image_Model::init_voronoi()
            //do one iteration
            for( unsigned int j = 0; j < size; j++)
            {
-
                pt = temp[i].front();
                dist = euclidean_dist( pt, points[i] );
-//               printf("(%d,%d): %f\n", points[i].x, points[i].y, dist);
                 
                if( dist < voronoi[pt.x][pt.y] )
                {
@@ -183,9 +183,8 @@ void Image_Model::display_voronoi()
     {
         for(unsigned int j = 0; j < rows; j++)
         {
-            if(voronoi[i][0] > 99999 )
-                printf("DBL_MAX\n");
-//            printf("(%d,%d): %f\n", i, j, voronoi[i][j]);
+            if(voronoi[i][j] > 20)
+                printf("%f\n", voronoi[i][j]);
         }
     }
 }
@@ -275,7 +274,7 @@ double euclidean_dist(point A, point B)
 //returns a list of the directed hausorff distances.  An ordered list with 
 //best matching distances first. This is ORDERS of magnitueds FASTER 
 //than the original hausdorff distance calculation.
-vector<double> directed_hausdorff(vector<point>& pts, double** surface)
+vector<double> forward_hausdorff(vector<point>& pts, double** surface)
 {
     clock_t t = clock();
     vector<double> distance;
@@ -295,11 +294,12 @@ vector<double> directed_hausdorff(vector<point>& pts, double** surface)
     return distance;
 }
 
-//Reverse Hausdorff:
+//Box Reverse Hausdorff:
 //returns a list of the directed hausorff distances.  An ordered list with 
 //best matching distances first. This is ORDERS of magnitueds FASTER 
 //than the original hausdorff distance calculation.
-vector<double> directed_hausdorff(double** surface, vector<point>& pts)
+//TO DO: need to implement
+vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax, int Ymax )
 {
     clock_t t = clock();
     vector<double> distance;
@@ -309,7 +309,13 @@ vector<double> directed_hausdorff(double** surface, vector<point>& pts)
         return distance;
 
     for(unsigned int i = 0; i < pts.size(); i++)
+    {
+        //Continue if index outside of model space
+        if(pts[i].x < 0 || pts[i].x >= Xmax || pts[i].y < 0 || pts[i].y >= Ymax)
+            continue;
+
         distance.push_back(surface[pts[i].x][pts[i].y]);
+    }
 
     sort(distance.begin(), distance.end());
     cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
@@ -382,30 +388,30 @@ bool equal(Image& image1, Image& image2)
     return true;
 }
 
-queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
-{
-    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
-    int gamma = 0;
-    //gamma = calcGamma(tsObj);
-    queue<tsObject> matches = new vector<tsObject>;
-    matches.push_back(tsObj);
-    //while( cellsize(matches.front())!=0)
-    while (!matches.isEmpty())
-    {
-        //gamma = calcGamma(matches.front());
-        //if ( isInteresting( matches.front(), image, model )
-        //{
-        //matches.add( divide(matches.front()));
-        //}
-        matches.pop_front();
-
-    }
-    return matches;
-}
-
-int calcGamma( tsObject tsObj)
-{
-
-    int gamma = 0;
-    return gamma;
-}
+//queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
+//{
+//    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
+//    int gamma = 0;
+//    //gamma = calcGamma(tsObj);
+//    queue<tsObject> matches = new vector<tsObject>;
+//    matches.push_back(tsObj);
+//    //while( cellsize(matches.front())!=0)
+//    while (!matches.isEmpty())
+//    {
+//        //gamma = calcGamma(matches.front());
+//        //if ( isInteresting( matches.front(), image, model )
+//        //{
+//        //matches.add( divide(matches.front()));
+//        //}
+//        matches.pop_front();
+//
+//    }
+//    return matches;
+//}
+//
+//int calcGamma( tsObject tsObj)
+//{
+//
+//    int gamma = 0;
+//    return gamma;
+//}
