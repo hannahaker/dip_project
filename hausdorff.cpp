@@ -498,12 +498,12 @@ queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelError
         int thresh = pixelErrorThresh + gamma;
         if ( isInteresting( matches.front(), target, model, percentList, thresh ) )
         {
-            queue<tsObject> addMatches = divide(matches.front());
+            vector<tsObject> addMatches = divide(matches.front());
             while( addMatches.size()!= 0)
             {
-             matches.push(addMatches.front());
-             addMatches.pop();
-         }
+             matches.push(addMatches.back());
+             addMatches.pop_back();
+            }
 
             //vector<tsObject> divided = divide(matches.front());
             //matches.insert( matches.end(), divided.begin(), divided.end() ) ;
@@ -566,9 +566,9 @@ bool isInteresting( tsObject & ts, Image_Model & target, Image_Model & model, fl
    Description: divides the transformation into 4 smaller transformation
        spaces
  ************************************************************************/
-queue<tsObject> divide( tsObject ts )
+vector<tsObject> divide( tsObject ts )
 {
-    queue<tsObject> subTransformSpace ;
+    vector<tsObject> subTransformSpace ;
 
     tsObject cell_1_1( ts.transXMin , ts.transXCenter,
                      ts.transYMin , ts.transYCenter,
@@ -638,26 +638,25 @@ queue<tsObject> divide( tsObject ts )
                      ts.scaleXCenter , ts.scaleXMax,
                      ts.scaleYCenter , ts.scaleYMax) ;
 
-    subTransformSpace.push( cell_1_1 ) ;
-    subTransformSpace.push( cell_1_2 ) ;
-    subTransformSpace.push( cell_1_3 ) ;
-    subTransformSpace.push( cell_1_4 ) ;
+    subTransformSpace.push_back( cell_1_1 ) ;
+//    subTransformSpace.push_back( cell_1_2 ) ;
+//    subTransformSpace.push_back( cell_1_3 ) ;
+//    subTransformSpace.push_back( cell_1_4 ) ;
 
-    subTransformSpace.push( cell_2_1 ) ;
-    subTransformSpace.push( cell_2_2 ) ;
-    subTransformSpace.push( cell_2_3 ) ;
-    subTransformSpace.push( cell_2_4 ) ;
+    subTransformSpace.push_back( cell_2_1 ) ;
+//    subTransformSpace.push_back( cell_2_2 ) ;
+//    subTransformSpace.push_back( cell_2_3 ) ;
+//    subTransformSpace.push_back( cell_2_4 ) ;
 
-    subTransformSpace.push( cell_3_1 ) ;
-    subTransformSpace.push( cell_3_2 ) ;
-    subTransformSpace.push( cell_3_3 ) ;
-    subTransformSpace.push( cell_3_4 ) ;
+    subTransformSpace.push_back( cell_3_1 ) ;
+//    subTransformSpace.push_back( cell_3_2 ) ;
+//    subTransformSpace.push_back( cell_3_3 ) ;
+//    subTransformSpace.push_back( cell_3_4 ) ;
 
-    subTransformSpace.push( cell_4_1 ) ;
-    subTransformSpace.push( cell_4_2 ) ;
-    subTransformSpace.push( cell_4_3 ) ;
-    subTransformSpace.push( cell_4_4 ) ;
-
+    subTransformSpace.push_back( cell_4_1 ) ;
+//    subTransformSpace.push_back( cell_4_2 ) ;
+//    subTransformSpace.push_back( cell_4_3 ) ;
+//    subTransformSpace.push_back( cell_4_4 ) ;
 
     return subTransformSpace ;
 }
