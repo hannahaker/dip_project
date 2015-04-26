@@ -42,7 +42,7 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
     //resize target image to match model image and
     //reinitialize the points
     // Taking out match so we are not resizing image
-    //target.match(model.image);
+    target.match(model.image);
 
     //smooth image to get better result of sobel edge detection
     smoothGaussian( target.image, 2 );
@@ -77,6 +77,11 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
     printf("---------- Start -------------\n");
     //hausdorff using voronoi surface
     distances = forward_hausdorff(model.points, target.voronoi);
+    printf("model to target .20: %f\n", distances[f*distances.size()]);
+    printf("-----------------------------\n");
+
+    //hausdorff using voronoi surface
+    distances = reverse_hausdorff(model, target);
     printf("model to target .20: %f\n", distances[f*distances.size()]);
     printf("-----------------------------\n");
 

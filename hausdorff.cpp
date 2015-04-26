@@ -354,22 +354,22 @@ vector<double> forward_hausdorff(vector<point>& pts, double** surface)
         ORDERS of magnitueds FASTER than the original hausdorff distance calculation.
    TO DO: need to implement
  ************************************************************************/
-vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax, int Ymax )
+vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model)
 {
     //clock_t t = clock();
     vector<double> distance;
 
     //make sure there are points to process
-    if(pts.size() == 0)
+    if(target.points.size() == 0)
         return distance;
 
-    for(unsigned int i = 0; i < pts.size(); i++)
+    for(unsigned int i = 0; i < target.points.size(); i++)
     {
         //Continue if index outside of model space
-        if(pts[i].x < 0 || pts[i].x >= Xmax || pts[i].y < 0 || pts[i].y >= Ymax)
+        if(target.points[i].x < 0 || target.points[i].x >= (int)model.rows || target.points[i].y < 0 || target.points[i].y >= (int)model.cols)
             continue;
 
-        distance.push_back(surface[pts[i].x][pts[i].y]);
+        distance.push_back(model.voronoi[target.points[i].x][target.points[i].y]);
     }
 
     sort(distance.begin(), distance.end());
@@ -449,7 +449,6 @@ bool equal(Image& image1, Image& image2)
         }
     }
 
-
     return true;
 }
 
@@ -459,6 +458,7 @@ bool equal(Image& image1, Image& image2)
    Author: Hannah Aker
    Description: Finds interesting transformation spaces
  ************************************************************************/
+
 vector<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
 {
     tsObject *tsObj = new tsObject(0,0,0,0,1,1,1,1);
@@ -555,3 +555,35 @@ vector<tsObject> divide( tsObject trfSpace )
 
     return subTransformSpace ;
 }
+
+//queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
+//{
+//    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
+//    int gamma = 0;
+//    //gamma = calcGamma(tsObj);
+//    queue<tsObject> matches = new vector<tsObject>;
+//    matches.push_back(tsObj);
+//    //while( cellsize(matches.front())!=0)
+//    while (!matches.isEmpty())
+//    {
+//        //gamma = calcGamma(matches.front());
+//        //if ( isInteresting( matches.front(), image, model )
+//        //{
+//        //matches.add( divide(matches.front()));
+//        //}
+//        matches.pop_front();
+//
+//    }
+//    return matches;
+//}
+//
+//int calcGamma( tsObject tsObj)
+//{
+//
+//    int gamma = 0;
+//    return gamma;
+//}
+
+
+//vector<point> transform(tsObject ts, Image_Model & )
+

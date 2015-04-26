@@ -87,7 +87,7 @@ class Image_Model
 
 double euclidean_dist(point A, point B);
 vector<double> forward_hausdorff(vector<point>& pts, double** surface);
-vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax, int Ymax );
+vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model);
 vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
 bool equal(Image& image1, Image& image2);
 
