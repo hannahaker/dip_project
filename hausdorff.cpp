@@ -325,7 +325,7 @@ double euclidean_dist(point A, point B)
         FASTER than the original hausdorff distance calculation. Uses voronoi
         surface to faster calculate Hausdorff values.
  ************************************************************************/
-vector<double> forward_hausdorff(Image_Model& model, Image_Model& target)
+vector<double> forward_hausdorff(vector<point> modelPoints, Image_Model& target)
 {
     /*
     //clock_t t = clock();
@@ -350,12 +350,12 @@ vector<double> forward_hausdorff(Image_Model& model, Image_Model& target)
     vector<double> distance;
 
     //make sure there are points to process
-    if(model.points.size() == 0)
+    if(modelPoints.size() == 0)
         return distance;
 
-    for(unsigned int i = 0; i < model.points.size(); i++)
+    for(unsigned int i = 0; i < modelPoints.size(); i++)
     {
-        distance.push_back(target.voronoi[model.points[i].x][model.points[i].y]);
+        distance.push_back(target.voronoi[modelPoints[i].x][modelPoints[i].y]);
     }
 
     sort(distance.begin(), distance.end());
@@ -494,6 +494,7 @@ queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelError
     //while (!matches.size()!=0)
     while (gamma != 0)
     {
+        cout << "Gamma is " << gamma << endl;
         int thresh = pixelErrorThresh + gamma;
         if ( isInteresting( matches.front(), target, model, percentList, thresh ) )
         {
@@ -509,7 +510,7 @@ queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelError
 
         }
         //matches.erase( matches.begin() ) ;
-        match.pop();
+        matches.pop();
         gamma = calcGamma(matches.front(), model.cols-1, model.rows-1);
     }
     return matches;
@@ -547,7 +548,7 @@ bool isInteresting( tsObject & ts, Image_Model & target, Image_Model & model, fl
 
     // transform model with quadruple
     vector<point> modelPointsTrans = transform(ts, model);
-    vector<double> haus = forward_hausdorff(modelPointsTrans, target.voronoi);
+    vector<double> haus = forward_hausdorff(modelPointsTrans, target);
 
     // compare partial forward HD ( t(M), I ) at k * #points in sorted
     int hausIndex = percentList * (haus.size()-1);
@@ -666,10 +667,10 @@ vector<point> transform(tsObject ts, Image_Model & transImage )
 {
     point temp;
     vector<point> points;
-    for( int i = 0; i < (int)model.points.size(); i++)
+    for( int i = 0; i < (int)transImage.points.size(); i++)
     {
-        temp.x = model.points[i].x *ts.scaleXCenter + ts.transXCenter;
-        temp.y = model.points[i].y *ts.scaleYCenter + ts.transYCenter;
+        temp.x = transImage.points[i].x *ts.scaleXCenter + ts.transXCenter;
+        temp.y = transImage.points[i].y *ts.scaleYCenter + ts.transYCenter;
         points.push_back(temp);
     }
     return points;

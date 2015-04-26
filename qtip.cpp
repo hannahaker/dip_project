@@ -76,7 +76,7 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 
     printf("---------- Start -------------\n");
     //hausdorff using voronoi surface
-    distances = forward_hausdorff(model.points, target.voronoi);
+    distances = forward_hausdorff(model.points, target);
     printf("model to target .20: %f\n", distances[f*distances.size()]);
     printf("-----------------------------\n");
 
