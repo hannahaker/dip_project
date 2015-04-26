@@ -37,12 +37,13 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
     Image_Model target(image1);
     Image_Model model(image2);
     vector<double> distances;
+    vector<tsObject> faces;
     double f = .80;
 
     //resize target image to match model image and
     //reinitialize the points
     // Taking out match so we are not resizing image
-    target.match(model.image);
+//    target.match(model.image);
 
     //smooth image to get better result of sobel edge detection
     smoothGaussian( target.image, 2 );
@@ -71,7 +72,7 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 //    target.init_voronoi();
 //    target.display_voronoi();
 
-    decomp(target, model, 1, 1.0, 1);
+    faces = decomp(target, model, 9, 1.0, 1);
 
 
     printf("---------- Start -------------\n");
@@ -95,6 +96,7 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 //    printf("-----------------------------\n");
     printf("--------- End ----------------\n");
 
+    draw_box(image1, faces, model.rows, model.cols);
 
 //    image.DrawLine(5, 200, 5, 5, Pixel(0,255,0));
     return true;

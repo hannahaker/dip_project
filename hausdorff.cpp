@@ -480,8 +480,10 @@ bool equal(Image& image1, Image& image2)
    Description: Finds interesting transformation spaces
  ************************************************************************/
 
-queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh = 1, float percentList = 1.0, int alpha = 1)
+vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh = 1, float percentList = 1.0, int alpha = 1)
 {
+    vector<tsObject> realMatches;
+
     // initialize our first transformation space paramaters
     tsObject tsObj(0, target.cols - model.cols, 0, target.rows - model.rows,1,1,1,1);
 
@@ -492,17 +494,27 @@ queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelError
     matches.push(tsObj);
 
     //while (!matches.size()!=0)
-    while (gamma != 0)
+    while (!matches.empty())
     {
+        gamma = calcGamma(matches.front(), model.cols-1, model.rows-1);
         cout << "Gamma is " << gamma << endl;
         int thresh = pixelErrorThresh + gamma;
         if ( isInteresting( matches.front(), target, model, percentList, thresh ) )
         {
-            vector<tsObject> addMatches = divide(matches.front());
-            while( addMatches.size()!= 0)
+            if(gamma < 1.5)
             {
-             matches.push(addMatches.back());
-             addMatches.pop_back();
+                realMatches.push_back(matches.front());
+                printf("realMatches\n");
+            }
+            else
+            {
+
+                vector<tsObject> addMatches = divide(matches.front());
+                while( addMatches.size()!= 0)
+                {
+                 matches.push(addMatches.back());
+                 addMatches.pop_back();
+                }
             }
 
             //vector<tsObject> divided = divide(matches.front());
@@ -511,9 +523,8 @@ queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelError
         }
         //matches.erase( matches.begin() ) ;
         matches.pop();
-        gamma = calcGamma(matches.front(), model.cols-1, model.rows-1);
     }
-    return matches;
+    return realMatches;
 }
 
 
@@ -526,6 +537,8 @@ queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelError
 double calcGamma( tsObject ts, int xMax, int yMax )
 {
 
+    if(ts.transXMax == ts.transXMin)
+        printf("hahaha!\n");
     double x = ts.transXMax - ts.transXMin + (( ts.scaleXMax - ts.scaleXMin )*xMax/2.0);
     double y = ts.transYMax - ts.transYMin + (( ts.scaleYMax - ts.scaleYMin )*yMax/2.0);
 
@@ -675,3 +688,24 @@ vector<point> transform(tsObject ts, Image_Model & transImage )
     return points;
 }
 
+void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
+{
+    point p1, p2, p3, p4;
+    for(unsigned int i = 0; i < ts.size(); i++)
+    {
+        printf("vector not empty!");
+        p1.x = ts[i].transXCenter;
+        p1.y = ts[i].transYCenter;
+        p2.x = ts[i].transXCenter + (cols * ts[i].scaleXCenter);
+        p2.y = ts[i].transYCenter;
+        p3.x = ts[i].transXCenter;
+        p3.y = ts[i].transYCenter + (rows * ts[i].scaleYCenter);
+        p4.x = ts[i].transXCenter + (cols * ts[i].scaleXCenter);
+        p4.y = ts[i].transYCenter + (rows * ts[i].scaleYCenter);
+
+        image.DrawLine(p1.x, p1.y, p2.x, p2.y, Pixel(0,255,0));
+        image.DrawLine(p1.x, p1.y, p3.x, p3.y, Pixel(0,255,0));
+        image.DrawLine(p2.x, p2.y, p4.x, p4.y, Pixel(0,255,0));
+        image.DrawLine(p4.x, p4.y, p3.x, p3.y, Pixel(0,255,0));
+    }
+}

@@ -91,8 +91,9 @@ vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model);
 vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
 bool equal(Image& image1, Image& image2);
 
-queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh, float percentList, int alpha);
+vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh, float percentList, int alpha);
 double calcGamma( tsObject tsObj, int xMax, int yMax);
 bool isInteresting( tsObject & transSpace, Image_Model & target, Image_Model & model, float percentList, int threshold );
 vector<tsObject> divide( tsObject trfSpace );
 vector<point> transform(tsObject ts, Image_Model & transImage );
+void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols);
