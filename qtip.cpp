@@ -37,7 +37,8 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
     Image_Model target(image1);
     Image_Model model(image2);
     vector<double> distances;
-    vector<tsObject> faces;
+    vector<tsObject> matches;
+    vector<tsObject> goodMatches;
     double f = .80;
 
     //resize target image to match model image and
@@ -72,17 +73,23 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 //    target.init_voronoi();
 //    target.display_voronoi();
 
-    faces = decomp(target, model, 9, 1.0, 1);
+    int thresh = 10;
+        if ( !Dialog( "pixel error threshold" ).Add( thresh, "Threshold", 1, 30 ).Show() )
+            return false;
+
+    matches = decomp(target, model, thresh, 1.0, 1);
+
+    goodMatches = validMatches(matches, target, model, thresh, 1.0);
 
 
-    printf("---------- Start -------------\n");
+    /*printf("---------- Start -------------\n");
     //hausdorff using voronoi surface
     distances = forward_hausdorff(model.points, target);
     printf("model to target .20: %f\n", distances[f*distances.size()]);
     printf("-----------------------------\n");
 
     //hausdorff using voronoi surface
-    distances = reverse_hausdorff(model, target);
+    distances = reverse_hausdorff(model.points, target);
     printf("model to target .20: %f\n", distances[f*distances.size()]);
     printf("-----------------------------\n");
 
@@ -95,8 +102,11 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 //    printf("target to model .20: %f\n", distances[f*distances.size()]);
 //    printf("-----------------------------\n");
     printf("--------- End ----------------\n");
+*/
 
-    draw_box(image1, faces, model.rows, model.cols);
+
+
+    draw_box(image1, goodMatches, model.rows, model.cols);
 
 //    image.DrawLine(5, 200, 5, 5, Pixel(0,255,0));
     return true;

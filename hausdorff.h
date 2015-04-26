@@ -97,3 +97,4 @@ bool isInteresting( tsObject & transSpace, Image_Model & target, Image_Model & m
 vector<tsObject> divide( tsObject trfSpace );
 vector<point> transform(tsObject ts, Image_Model & transImage );
 void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols);
+vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target, Image_Model & model, double thresh, int percentList );

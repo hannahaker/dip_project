@@ -359,7 +359,7 @@ vector<double> forward_hausdorff(vector<point> modelPoints, Image_Model& target)
     }
 
     sort(distance.begin(), distance.end());
-    cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
+    //cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
 
    //printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
@@ -384,17 +384,18 @@ vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model)
     if(target.points.size() == 0)
         return distance;
 
-    for(unsigned int i = 0; i < target.points.size(); i++)
+    for(  unsigned int i = 0; i < target.points.size(); i++)
     {
         //Continue if index outside of model space
-        if(target.points[i].x < 0 || target.points[i].x >= (int)model.rows || target.points[i].y < 0 || target.points[i].y >= (int)model.cols)
+        if(  ( (target.points[i].x < 0) || (target.points[i].x >= (int)model.cols) ) ||
+           ((target.points[i].y < 0) || (target.points[i].y >= (int)model.rows)) )
             continue;
 
         distance.push_back(model.voronoi[target.points[i].x][target.points[i].y]);
     }
 
     sort(distance.begin(), distance.end());
-    cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
+    cout << "Reverse Hausdorff Distance (Voronoi): " << distance.back() << endl;
 
    //printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
@@ -497,14 +498,14 @@ vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErro
     while (!matches.empty())
     {
         gamma = calcGamma(matches.front(), model.cols-1, model.rows-1);
-        cout << "Gamma is " << gamma << endl;
+        //cout << "Gamma is " << gamma << endl;
         int thresh = pixelErrorThresh + gamma;
         if ( isInteresting( matches.front(), target, model, percentList, thresh ) )
         {
             if(gamma < 1.5)
             {
                 realMatches.push_back(matches.front());
-                printf("realMatches\n");
+                //printf("realMatches\n");
             }
             else
             {
@@ -524,6 +525,7 @@ vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErro
         //matches.erase( matches.begin() ) ;
         matches.pop();
     }
+    cout << "Finished Decomp!!" << endl;
     return realMatches;
 }
 
@@ -537,8 +539,8 @@ vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErro
 double calcGamma( tsObject ts, int xMax, int yMax )
 {
 
-    if(ts.transXMax == ts.transXMin)
-        printf("hahaha!\n");
+    //if(ts.transXMax == ts.transXMin)
+      //  printf("hahaha!\n");
     double x = ts.transXMax - ts.transXMin + (( ts.scaleXMax - ts.scaleXMin )*xMax/2.0);
     double y = ts.transYMax - ts.transYMin + (( ts.scaleYMax - ts.scaleYMin )*yMax/2.0);
 
@@ -573,8 +575,9 @@ bool isInteresting( tsObject & ts, Image_Model & target, Image_Model & model, fl
         return false ;
 }
 
+
 /************************************************************************
-   Function: isInteresting
+   Function: divide
    Author: Steven Heurta
    Description: divides the transformation into 4 smaller transformation
        spaces
@@ -675,6 +678,11 @@ vector<tsObject> divide( tsObject ts )
 }
 
 
+/************************************************************************
+   Function: transform
+   Author: Steven Heurta
+   Description: transforms list of points
+ ************************************************************************/
 vector<point> transform(tsObject ts, Image_Model & transImage )
 {
     point temp;
@@ -688,6 +696,12 @@ vector<point> transform(tsObject ts, Image_Model & transImage )
     return points;
 }
 
+
+/************************************************************************
+   Function: Hannah Aker
+   Author: Steven Heurta
+   Description: draws boxes around transformation spaces
+ ************************************************************************/
 void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
 {
     point p1, p2, p3, p4;
@@ -708,4 +722,42 @@ void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
         image.DrawLine(p2.x, p2.y, p4.x, p4.y, Pixel(0,255,0));
         image.DrawLine(p4.x, p4.y, p3.x, p3.y, Pixel(0,255,0));
     }
+}
+
+
+/************************************************************************
+   Function: validFaces
+   Author: Steven Heurta
+   Description: weeds out matches based on reverse Hausdorff
+ ************************************************************************/
+vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target, Image_Model & model, double threshold, int percentList = 1.0 )
+{
+    vector<tsObject> goodMatches;
+    cout << "Valid Matches!" << endl;
+    vector<point> orgTargetPoints = target.points;
+
+
+
+   for( unsigned int i = 0; i < matches.size(); i++ )
+    {
+    vector<point> targetPointsTrans = transform(matches[i], target);
+    target.points = targetPointsTrans;
+    //cout << "Transformed it!" << endl;
+    vector<double> r_haus = reverse_hausdorff(target, model);
+    cout << "Reversed it!!" << endl;
+
+    int hausIndex = percentList * (r_haus.size()-1);
+
+    double hausDist = r_haus.at(hausIndex);
+
+    if( hausDist < threshold )
+    {
+        goodMatches.push_back(matches[i]);
+    }
+    target.points = orgTargetPoints;
+}
+
+   return goodMatches;
+
+
 }
