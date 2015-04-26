@@ -1,6 +1,8 @@
 #ifndef TSOBJECT_H
 #define TSOBJECT_H
 
+#include <cmath>
+
 class tsObject
 {
 public:

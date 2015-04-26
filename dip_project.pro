@@ -5,7 +5,6 @@ HEADERS += \
     hausdorff.h
 
 SOURCES += \
-    generalContainer.cpp \
     qtip.cpp \
     hausdorff.cpp \
     tsObject.cpp

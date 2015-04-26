@@ -1,7 +1,6 @@
 #include "tsObject.h"
 
-
-tsOjbect::tsObject( int tXMin, int tXMax, int tYMin, int tYMax,
+tsObject::tsObject( int tXMin, int tXMax, int tYMin, int tYMax,
                     int sXMin, int sXMax, int sYMin, int sYMax )
 {
     // Set the values for possible x,y translations
@@ -18,14 +17,10 @@ tsOjbect::tsObject( int tXMin, int tXMax, int tYMin, int tYMax,
 
     // Calc the ceiling of the center of each dimension of the transformation
     // space
-    transXCenter = ceil( ( transformSpace.transXMax +
-                           transformSpace.transXMin ) / 2 );
-    transYCenter = ceil( ( transformSpace.transYMax +
-                           transformSpace.transYMin ) / 2 );
-    scaleXCenter = ceil( ( transformSpace.scaleXMax +
-                           transformSpace.scaleXMin ) / 2 );
-    scaleYCenter = ceil( ( transformSpace.scaleYMax +
-                           transformSpace.scaleYMin ) / 2 );
+    transXCenter = ceil( ( transXMax + transXMin ) / 2 );
+    transYCenter = ceil( ( transYMax + transYMin ) / 2 );
+    scaleXCenter = ceil( ( scaleXMax + scaleXMin ) / 2 );
+    scaleYCenter = ceil( ( scaleYMax + scaleYMin ) / 2 );
 
 }
 
