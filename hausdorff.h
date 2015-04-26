@@ -34,6 +34,7 @@
 #include <qtimagelib.h>
 #include <vector>
 #include <queue>
+#include <time.h>
 #include <iostream>
 #include <cmath>
 #include <cfloat>   //DBL_MAX
