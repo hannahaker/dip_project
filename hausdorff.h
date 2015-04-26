@@ -40,6 +40,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <algorithm>
+#include <tsObject.h>
 
 using namespace std;
 
@@ -89,5 +90,7 @@ vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax,
 vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
 bool equal(Image& image1, Image& image2);
 
-//queue<point> decomp(Image_Model& image, Image_Model& model, int scale);
-//int calcGamma( tsObject tsObj);
+vector<tsObject> decomp(Image_Model& image, Image_Model& model, int scale);
+int calcGamma( tsObject tsObj);
+bool isInteresting( tsObject transSpace, Image_Model I, Image_Model M, float k, int threshold );
+vector<tsObject> divide( tsObject trfSpace );

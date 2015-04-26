@@ -88,7 +88,7 @@ void Image_Model::init_voronoi_mask()
     for(unsigned int i = 0; i < points.size(); i++)
         voronoi[points[i].x][points[i].y] = 0;
 
-    clock_t t = clock();
+    //clock_t t = clock();
 
     //initialize the queue
     for(unsigned int i = 0; i < points.size(); i++)
@@ -130,7 +130,7 @@ void Image_Model::init_voronoi_mask()
         }
         temp.pop();
     }
-   printf("time to calculate voronoi surface (mask): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+   //printf("time to calculate voronoi surface (mask): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
 }
 
@@ -144,7 +144,7 @@ void Image_Model::init_voronoi_mask()
  ************************************************************************/
 void Image_Model::init_voronoi()
 {
-    clock_t t = clock();
+    //clock_t t = clock();
     point pt;
     vector<queue<point> > temp;
     double dist;
@@ -189,7 +189,7 @@ void Image_Model::init_voronoi()
            }
        }
    }
-   printf("time to calculate voronoi surface (euclidean): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+   //printf("time to calculate voronoi surface (euclidean): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 }
 
 
@@ -327,7 +327,7 @@ double euclidean_dist(point A, point B)
  ************************************************************************/
 vector<double> forward_hausdorff(vector<point>& pts, double** surface)
 {
-    clock_t t = clock();
+    //clock_t t = clock();
     vector<double> distance;
 
     //make sure there are points to process
@@ -340,7 +340,7 @@ vector<double> forward_hausdorff(vector<point>& pts, double** surface)
     sort(distance.begin(), distance.end());
     cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
 
-   printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+   //printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
     return distance;
 }
@@ -356,7 +356,7 @@ vector<double> forward_hausdorff(vector<point>& pts, double** surface)
  ************************************************************************/
 vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax, int Ymax )
 {
-    clock_t t = clock();
+    //clock_t t = clock();
     vector<double> distance;
 
     //make sure there are points to process
@@ -375,7 +375,7 @@ vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax,
     sort(distance.begin(), distance.end());
     cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
 
-   printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+   //printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
     return distance;
 }
@@ -390,7 +390,7 @@ vector<double> reverse_hausdorff(vector<point>& pts, double** surface, int Xmax,
  ************************************************************************/
 vector<double> directed_hausdorff(vector<point> &B, vector<point>& A)
 {
-    clock_t t = clock();
+    //clock_t t = clock();
     double max = -1;
     double min = 9999;
     double dist;
@@ -425,7 +425,7 @@ vector<double> directed_hausdorff(vector<point> &B, vector<point>& A)
     sort(distance.begin(), distance.end());
     cout << "Hausdorff Distance: " << distance.back() << endl;
 
-   printf("time to calculate hausdorff: %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+   //printf("time to calculate hausdorff: %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
     return distance;
 }
@@ -459,30 +459,99 @@ bool equal(Image& image1, Image& image2)
    Author: Hannah Aker
    Description: Finds interesting transformation spaces
  ************************************************************************/
-//queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
-//{
-//    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
-//    int gamma = 0;
-//    //gamma = calcGamma(tsObj);
-//    queue<tsObject> matches = new vector<tsObject>;
-//    matches.push_back(tsObj);
-//    //while( cellsize(matches.front())!=0)
-//    while (!matches.isEmpty())
-//    {
-//        //gamma = calcGamma(matches.front());
-//        //if ( isInteresting( matches.front(), image, model )
-//        //{
-//        //matches.add( divide(matches.front()));
-//        //}
-//        matches.pop_front();
-//
-//    }
-//    return matches;
-//}
-//
-//int calcGamma( tsObject tsObj)
-//{
-//
-//    int gamma = 0;
-//    return gamma;
-//}
+vector<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
+{
+    tsObject *tsObj = new tsObject(0,0,0,0,1,1,1,1);
+    int gamma = 0;
+    int k = 0;
+    int t = 0;
+    vector<tsObject> matches;
+    matches.push_back(*tsObj);
+    //while( cellsize(matches.front())!=0)
+    while (!matches.size()!=0)
+    {
+        gamma = calcGamma(matches.front());
+        if ( isInteresting( matches.front(), image, model, k, t ) )
+        {
+            vector<tsObject> divided = divide(matches.front());
+            for( int i = 0; i < 4; i++ )
+            {
+                matches.push_back( divided.at(i));
+            }
+        }
+        matches.erase( matches.begin() ) ;
+
+    }
+    return matches;
+}
+
+
+/************************************************************************
+   Function: calcGamma
+   Author: Steven Heurta
+   Description: Calculate Gamma for Decomp function
+ ************************************************************************/
+int calcGamma( tsObject tranfSpace)
+{
+    int coords[2] = { ( tranfSpace.transXMax - tranfSpace.transXMin )/2 +
+                      ( tranfSpace.scaleXMax - tranfSpace.scaleXMin ) ,
+                      ( tranfSpace.transYMax - tranfSpace.transYMin )/2 +
+                      ( tranfSpace.scaleYMax - tranfSpace.scaleYMin ) } ;
+
+    int gamma = pow( coords[0] , 2 ) + pow( coords[1] , 2 ) ;
+
+    gamma = pow( gamma, 0.5 ) ;
+
+    return gamma ;
+}
+
+
+/************************************************************************
+   Function: isInteresting
+   Author: Steven Heurta
+   Description: determines if a transformation space is intersting, runs
+       hausdorff and examines values returned.
+ ************************************************************************/
+bool isInteresting( tsObject transSpace, Image_Model I, Image_Model M, float k, int threshold )
+{
+    int distance = 0 ; // placeholder
+
+    // transform model with quadruple
+    // (transSpace.transXCenter, transSpace.transYCenter,
+    //  transSpace.scaleXCenter, transSpace.scaleYCenter
+
+    // compare partial forward HD ( t(M), I ) at k * #points in sorted
+    // forward distance list
+
+    if( distance < threshold )
+        return true ;
+    else
+        return false ;
+}
+
+/************************************************************************
+   Function: isInteresting
+   Author: Steven Heurta
+   Description: divides the transformation into 4 smaller transformation
+       spaces
+ ************************************************************************/
+vector<tsObject> divide( tsObject trfSpace )
+{
+    vector<tsObject> subTransformSpace ;
+
+    tsObject cell_1( trfSpace.transXMin , trfSpace.transXCenter,
+                     trfSpace.transYMin , trfSpace.transYCenter ) ;
+    tsObject cell_2( trfSpace.transXCenter , trfSpace.transXMax,
+                     trfSpace.transYMin , trfSpace.transYCenter ) ;
+    tsObject cell_3( trfSpace.transXMin , trfSpace.transXCenter,
+                     trfSpace.transYCenter , trfSpace.transYMax ) ;
+    tsObject cell_4( trfSpace.transXCenter , trfSpace.transXMax,
+                     trfSpace.transYCenter , trfSpace.transYMax ) ;
+
+    subTransformSpace.push_back( cell_1 ) ;
+    subTransformSpace.push_back( cell_2 ) ;
+    subTransformSpace.push_back( cell_3 ) ;
+    subTransformSpace.push_back( cell_4 ) ;
+
+    return subTransformSpace ;
+}
