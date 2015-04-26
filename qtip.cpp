@@ -71,7 +71,7 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 //    target.init_voronoi();
 //    target.display_voronoi();
 
-
+    decomp(target, model, 1, 1.0, 1);
 
 
     printf("---------- Start -------------\n");

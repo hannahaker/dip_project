@@ -24,3 +24,9 @@ tsObject::tsObject( int tXMin, int tXMax, int tYMin, int tYMax,
 
 }
 
+tsObject tsObject::operator=( const tsObject &rhs)
+{
+    tsObject newTsObj(rhs.transXMin, rhs.transXMax, rhs.transYMin, rhs.transYMax,
+                      rhs.scaleXMin, rhs.scaleXMax, rhs.scaleYMin, rhs.scaleYMax);
+    return newTsObj;
+}

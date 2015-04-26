@@ -32,7 +32,7 @@ public:
     int rotThetaMax ;
     int rotThetaCenter ;
 
-
+    tsObject operator= ( const tsObject &rhs);
 };
 
 #endif //TSOBJECT_H

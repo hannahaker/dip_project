@@ -325,8 +325,9 @@ double euclidean_dist(point A, point B)
         FASTER than the original hausdorff distance calculation. Uses voronoi
         surface to faster calculate Hausdorff values.
  ************************************************************************/
-vector<double> forward_hausdorff(vector<point>& pts, double** surface)
+vector<double> forward_hausdorff(Image_Model& model, Image_Model& target)
 {
+    /*
     //clock_t t = clock();
     vector<double> distance;
 
@@ -336,6 +337,26 @@ vector<double> forward_hausdorff(vector<point>& pts, double** surface)
 
     for(unsigned int i = 0; i < pts.size(); i++)
         distance.push_back(surface[pts[i].x][pts[i].y]);
+
+    sort(distance.begin(), distance.end());
+    cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
+
+   //printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
+
+    return distance;
+    */
+
+    //clock_t t = clock();
+    vector<double> distance;
+
+    //make sure there are points to process
+    if(model.points.size() == 0)
+        return distance;
+
+    for(unsigned int i = 0; i < model.points.size(); i++)
+    {
+        distance.push_back(target.voronoi[model.points[i].x][model.points[i].y]);
+    }
 
     sort(distance.begin(), distance.end());
     cout << "Hausdorff Distance (Voronoi): " << distance.back() << endl;
@@ -459,77 +480,41 @@ bool equal(Image& image1, Image& image2)
    Description: Finds interesting transformation spaces
  ************************************************************************/
 
-vector<tsObject> decomp(Image_Model& target, Image_Model& model, int t, float k = 1.0, int alpha = 1)
+queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh = 1, float percentList = 1.0, int alpha = 1)
 {
-    int imageRows = target.Height() ;
-    int imageCols = target.Width() ;
-
-    int modelRows = model.Height() ;
-    int modelCols = model.Width() ;
-
     // initialize our first transformation space paramaters
-    tsObject *tsObj = new tsObject(0, imageCols - modelCols, 0, imageRows - modelCols1,1,1,1);
+    tsObject tsObj(0, target.cols - model.cols, 0, target.rows - model.rows,1,1,1,1);
 
     // get our distance of possible transforms in the transform space
-    int gamma = calcGamma(matches.front());
+    double gamma = calcGamma(tsObj, model.cols-1, model.rows-1);
 
-    vector<tsObject> matches;
-    matches.push_back(*tsObj);
-    //while( cellsize(matches.front())!=0)
-    while (!matches.size()!=0)
+    queue<tsObject> matches;
+    matches.push(tsObj);
+
+    //while (!matches.size()!=0)
+    while (gamma != 0)
     {
-        // get our distance of possible transforms in the transform space
-        gamma = calcGamma(matches.front());
-        thresh = t + gamma;
-        if ( isInteresting( matches.front(), target, model, k, thresh ) )
+        int thresh = pixelErrorThresh + gamma;
+        if ( isInteresting( matches.front(), target, model, percentList, thresh ) )
         {
-            vector<tsObject> divided = divide(matches.front());
-            tsList.insert( tsList.end(), divided.begin(), divided.end() ) ;
+            queue<tsObject> addMatches = divide(matches.front());
+            while( addMatches.size()!= 0)
+            {
+             matches.push(addMatches.front());
+             addMatches.pop();
+         }
+
+            //vector<tsObject> divided = divide(matches.front());
+            //matches.insert( matches.end(), divided.begin(), divided.end() ) ;
 
         }
-        matches.erase( matches.begin() ) ;
-
+        //matches.erase( matches.begin() ) ;
+        match.pop();
+        gamma = calcGamma(matches.front(), model.cols-1, model.rows-1);
     }
     return matches;
 }
-/*
-    int cell ;
-    int imageRows = I.Height() ;
-    int imageCols = I.Width() ;
 
-    int modelRows = M.Height() ;
-    int modelCols = I.Width() ;
-
-    // initialize our first transformation space paramaters
-    tsObject transfSpace( 0, imageCols - modelCols, 0, imageRows - modelCols ) ;
-
-    // get our distance of possible transforms in the transform space
-    int gamma = getGamma( transfSpace ) ;
-
-    // temp vector to test our matches ;
-    vector<tsObject> matches ;
-
-    vector<tsObject> tsList ;
-
-    tsList.push_back( tranfSpace ) ;
-
-    while( gamma !=0 )
-    {
-        threshold = t + gamma ;
-
-        if( isInteresting( tsList.front(), I, M, threshold, k ) )
-        {
-            vector<tsObject> temp ;
-            temp = divideSpace( ts.List.front() ) ;
-            tsList.insert( tsList.end(), temp.begin(), temp.end() ) ;
-        }
-
-        tsList.erase( tsList.begin() ) ;
-
-        gamma = getGamma( tsList.begin() ) ;
-    }
-
- */
 
 
 /************************************************************************
@@ -537,18 +522,17 @@ vector<tsObject> decomp(Image_Model& target, Image_Model& model, int t, float k 
    Author: Steven Heurta
    Description: Calculate Gamma for Decomp function
  ************************************************************************/
-int calcGamma( tsObject tranfSpace)
+double calcGamma( tsObject ts, int xMax, int yMax )
 {
-    int coords[2] = { ( tranfSpace.transXMax - tranfSpace.transXMin )/2 +
-                      ( tranfSpace.scaleXMax - tranfSpace.scaleXMin ) ,
-                      ( tranfSpace.transYMax - tranfSpace.transYMin )/2 +
-                      ( tranfSpace.scaleYMax - tranfSpace.scaleYMin ) } ;
 
-    int gamma = pow( coords[0] , 2 ) + pow( coords[1] , 2 ) ;
+    double x = ts.transXMax - ts.transXMin + (( ts.scaleXMax - ts.scaleXMin )*xMax/2.0);
+    double y = ts.transYMax - ts.transYMin + (( ts.scaleYMax - ts.scaleYMin )*yMax/2.0);
 
-    gamma = pow( gamma, 0.5 ) ;
+    double gamma = (x*x) + (y*y) ;
 
-    return gamma ;
+    gamma = sqrt( gamma ) ;
+
+    return gamma;
 }
 
 
@@ -558,18 +542,18 @@ int calcGamma( tsObject tranfSpace)
    Description: determines if a transformation space is intersting, runs
        hausdorff and examines values returned.
  ************************************************************************/
-bool isInteresting( tsObject transSpace, Image_Model I, Image_Model M, float k, int threshold )
+bool isInteresting( tsObject & ts, Image_Model & target, Image_Model & model, float percentList, int threshold )
 {
-    int distance = 0 ; // placeholder
 
     // transform model with quadruple
-    // (transSpace.transXCenter, transSpace.transYCenter,
-    //  transSpace.scaleXCenter, transSpace.scaleYCenter
+    vector<point> modelPointsTrans = transform(ts, model);
+    vector<double> haus = forward_hausdorff(modelPointsTrans, target.voronoi);
 
     // compare partial forward HD ( t(M), I ) at k * #points in sorted
-    // forward distance list
+    int hausIndex = percentList * (haus.size()-1);
+    double hausDist = haus.at(hausIndex);
 
-    if( distance < threshold )
+    if( hausDist < threshold )
         return true ;
     else
         return false ;
@@ -581,55 +565,113 @@ bool isInteresting( tsObject transSpace, Image_Model I, Image_Model M, float k, 
    Description: divides the transformation into 4 smaller transformation
        spaces
  ************************************************************************/
-vector<tsObject> divide( tsObject trfSpace )
+queue<tsObject> divide( tsObject ts )
 {
-    vector<tsObject> subTransformSpace ;
+    queue<tsObject> subTransformSpace ;
 
-    tsObject cell_1( trfSpace.transXMin , trfSpace.transXCenter,
-                     trfSpace.transYMin , trfSpace.transYCenter ) ;
-    tsObject cell_2( trfSpace.transXCenter , trfSpace.transXMax,
-                     trfSpace.transYMin , trfSpace.transYCenter ) ;
-    tsObject cell_3( trfSpace.transXMin , trfSpace.transXCenter,
-                     trfSpace.transYCenter , trfSpace.transYMax ) ;
-    tsObject cell_4( trfSpace.transXCenter , trfSpace.transXMax,
-                     trfSpace.transYCenter , trfSpace.transYMax ) ;
+    tsObject cell_1_1( ts.transXMin , ts.transXCenter,
+                     ts.transYMin , ts.transYCenter,
+                     ts.scaleXMin , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYMax) ;
+    tsObject cell_1_2( ts.transXMin , ts.transXCenter,
+                     ts.transYMin , ts.transYCenter,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYCenter) ;
+    tsObject cell_1_3( ts.transXMin , ts.transXCenter,
+                     ts.transYMin , ts.transYCenter,
+                     ts.scaleXMin , ts.scaleXCenter,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+    tsObject cell_1_4( ts.transXMin , ts.transXCenter,
+                     ts.transYMin , ts.transYCenter,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYCenter , ts.scaleYMax) ;
 
-    subTransformSpace.push_back( cell_1 ) ;
-    subTransformSpace.push_back( cell_2 ) ;
-    subTransformSpace.push_back( cell_3 ) ;
-    subTransformSpace.push_back( cell_4 ) ;
+    tsObject cell_2_1( ts.transXCenter , ts.transXMax,
+                       ts.transYMin , ts.transYCenter,
+                     ts.scaleXMin , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYMax) ;
+    tsObject cell_2_2( ts.transXCenter , ts.transXMax,
+                       ts.transYMin , ts.transYCenter,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYCenter) ;
+    tsObject cell_2_3( ts.transXCenter , ts.transXMax,
+                       ts.transYMin , ts.transYCenter,
+                     ts.scaleXMin , ts.scaleXCenter,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+    tsObject cell_2_4( ts.transXCenter , ts.transXMax,
+                       ts.transYMin , ts.transYCenter,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+
+    tsObject cell_3_1( ts.transXMin , ts.transXCenter,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXMin , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYMax) ;
+    tsObject cell_3_2( ts.transXMin , ts.transXCenter,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYCenter) ;
+    tsObject cell_3_3( ts.transXMin , ts.transXCenter,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXMin , ts.scaleXCenter,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+    tsObject cell_3_4( ts.transXMin , ts.transXCenter,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+
+    tsObject cell_4_1( ts.transXCenter , ts.transXMax,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXMin , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYMax) ;
+    tsObject cell_4_2( ts.transXCenter , ts.transXMax,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYMin , ts.scaleYCenter) ;
+    tsObject cell_4_3( ts.transXCenter , ts.transXMax,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXMin , ts.scaleXCenter,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+    tsObject cell_4_4( ts.transXCenter , ts.transXMax,
+                       ts.transYCenter , ts.transYMax,
+                     ts.scaleXCenter , ts.scaleXMax,
+                     ts.scaleYCenter , ts.scaleYMax) ;
+
+    subTransformSpace.push( cell_1_1 ) ;
+    subTransformSpace.push( cell_1_2 ) ;
+    subTransformSpace.push( cell_1_3 ) ;
+    subTransformSpace.push( cell_1_4 ) ;
+
+    subTransformSpace.push( cell_2_1 ) ;
+    subTransformSpace.push( cell_2_2 ) ;
+    subTransformSpace.push( cell_2_3 ) ;
+    subTransformSpace.push( cell_2_4 ) ;
+
+    subTransformSpace.push( cell_3_1 ) ;
+    subTransformSpace.push( cell_3_2 ) ;
+    subTransformSpace.push( cell_3_3 ) ;
+    subTransformSpace.push( cell_3_4 ) ;
+
+    subTransformSpace.push( cell_4_1 ) ;
+    subTransformSpace.push( cell_4_2 ) ;
+    subTransformSpace.push( cell_4_3 ) ;
+    subTransformSpace.push( cell_4_4 ) ;
+
 
     return subTransformSpace ;
 }
 
-//queue<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
-//{
-//    tsObject tsObj = new tsObject(0,0,0,0,1,1,1,1);
-//    int gamma = 0;
-//    //gamma = calcGamma(tsObj);
-//    queue<tsObject> matches = new vector<tsObject>;
-//    matches.push_back(tsObj);
-//    //while( cellsize(matches.front())!=0)
-//    while (!matches.isEmpty())
-//    {
-//        //gamma = calcGamma(matches.front());
-//        //if ( isInteresting( matches.front(), image, model )
-//        //{
-//        //matches.add( divide(matches.front()));
-//        //}
-//        matches.pop_front();
-//
-//    }
-//    return matches;
-//}
-//
-//int calcGamma( tsObject tsObj)
-//{
-//
-//    int gamma = 0;
-//    return gamma;
-//}
 
-
-//vector<point> transform(tsObject ts, Image_Model & )
+vector<point> transform(tsObject ts, Image_Model & transImage )
+{
+    point temp;
+    vector<point> points;
+    for( int i = 0; i < (int)model.points.size(); i++)
+    {
+        temp.x = model.points[i].x *ts.scaleXCenter + ts.transXCenter;
+        temp.y = model.points[i].y *ts.scaleYCenter + ts.transYCenter;
+        points.push_back(temp);
+    }
+    return points;
+}
 

@@ -91,7 +91,8 @@ vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model);
 vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
 bool equal(Image& image1, Image& image2);
 
-vector<tsObject> decomp(Image_Model& image, Image_Model& model, int scale);
-int calcGamma( tsObject tsObj);
-bool isInteresting( tsObject transSpace, Image_Model I, Image_Model M, float k, int threshold );
-vector<tsObject> divide( tsObject trfSpace );
+queue<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh, float percentList, int alpha);
+double calcGamma( tsObject tsObj, int xMax, int yMax);
+bool isInteresting( tsObject & transSpace, Image_Model & target, Image_Model & model, float percentList, int threshold );
+queue<tsObject> divide( tsObject trfSpace );
+vector<point> transform(tsObject ts, Image_Model & transImage );
