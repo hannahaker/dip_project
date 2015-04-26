@@ -459,31 +459,77 @@ bool equal(Image& image1, Image& image2)
    Description: Finds interesting transformation spaces
  ************************************************************************/
 
-vector<tsObject> decomp(Image_Model& image, Image_Model& model, int alpha)
+vector<tsObject> decomp(Image_Model& target, Image_Model& model, int t, float k = 1.0, int alpha = 1)
 {
-    tsObject *tsObj = new tsObject(0,0,0,0,1,1,1,1);
-    int gamma = 0;
-    int k = 0;
-    int t = 0;
+    int imageRows = target.Height() ;
+    int imageCols = target.Width() ;
+
+    int modelRows = model.Height() ;
+    int modelCols = model.Width() ;
+
+    // initialize our first transformation space paramaters
+    tsObject *tsObj = new tsObject(0, imageCols - modelCols, 0, imageRows - modelCols1,1,1,1);
+
+    // get our distance of possible transforms in the transform space
+    int gamma = calcGamma(matches.front());
+
     vector<tsObject> matches;
     matches.push_back(*tsObj);
     //while( cellsize(matches.front())!=0)
     while (!matches.size()!=0)
     {
+        // get our distance of possible transforms in the transform space
         gamma = calcGamma(matches.front());
-        if ( isInteresting( matches.front(), image, model, k, t ) )
+        thresh = t + gamma;
+        if ( isInteresting( matches.front(), target, model, k, thresh ) )
         {
             vector<tsObject> divided = divide(matches.front());
-            for( int i = 0; i < 4; i++ )
-            {
-                matches.push_back( divided.at(i));
-            }
+            tsList.insert( tsList.end(), divided.begin(), divided.end() ) ;
+
         }
         matches.erase( matches.begin() ) ;
 
     }
     return matches;
 }
+/*
+    int cell ;
+    int imageRows = I.Height() ;
+    int imageCols = I.Width() ;
+
+    int modelRows = M.Height() ;
+    int modelCols = I.Width() ;
+
+    // initialize our first transformation space paramaters
+    tsObject transfSpace( 0, imageCols - modelCols, 0, imageRows - modelCols ) ;
+
+    // get our distance of possible transforms in the transform space
+    int gamma = getGamma( transfSpace ) ;
+
+    // temp vector to test our matches ;
+    vector<tsObject> matches ;
+
+    vector<tsObject> tsList ;
+
+    tsList.push_back( tranfSpace ) ;
+
+    while( gamma !=0 )
+    {
+        threshold = t + gamma ;
+
+        if( isInteresting( tsList.front(), I, M, threshold, k ) )
+        {
+            vector<tsObject> temp ;
+            temp = divideSpace( ts.List.front() ) ;
+            tsList.insert( tsList.end(), temp.begin(), temp.end() ) ;
+        }
+
+        tsList.erase( tsList.begin() ) ;
+
+        gamma = getGamma( tsList.begin() ) ;
+    }
+
+ */
 
 
 /************************************************************************
