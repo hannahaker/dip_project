@@ -48,20 +48,20 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 
     //smooth image to get better result of sobel edge detection
     smoothGaussian( target.image, 2 );
-    displayImage(target.image, "Gaussian Smoothed Image");
+    //displayImage(target.image, "Gaussian Smoothed Image");
 
     // find edges
     sobel( target.image );
-    displayImage(target.image, "Sobel Image");
+    //displayImage(target.image, "Sobel Image");
 
     // prepare image for thinning
     binaryThreshold( target.image, 50 );
-    displayImage(target.image, "Thresholded Image");
+    //displayImage(target.image, "Thresholded Image");
 
     // Successive thinnings until there is no more cahnge.
     //This allows a smaller set of points to work with for the Hausdorff
     target.thin();
-    displayImage(target.image, "Thinnned image");
+    //displayImage(target.image, "Thinnned image");
 
     // get the target points from the image
     if( target.init_points() == 0 )
