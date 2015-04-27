@@ -375,7 +375,7 @@ vector<double> forward_hausdorff(vector<point> modelPoints, Image_Model& target)
         ORDERS of magnitueds FASTER than the original hausdorff distance calculation.
    TO DO: need to implement
  ************************************************************************/
-vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model)
+vector<double> reverse_hausdorff(tsObject ts, Image_Model& target, Image_Model& model)
 {
     //clock_t t = clock();
     vector<double> distance;
@@ -383,16 +383,23 @@ vector<double> reverse_hausdorff(Image_Model& target, Image_Model& model)
     //make sure there are points to process
     if(target.points.size() == 0)
         return distance;
+    x1 = ts.transXCenter ;
+    x2 = x1 + model.cols ;
+    y1 = ts.transYCenter ;
+    y2 = y1 + model.rows ;
 
     for(  unsigned int i = 0; i < target.points.size(); i++)
     {
         //Continue if index outside of model space
-        if(  ( (target.points[i].x < 0) || (target.points[i].x >= (int)model.cols) ) ||
-           ((target.points[i].y < 0) || (target.points[i].y >= (int)model.rows)) )
+        if(  ( (target.points[i].x < x1) || (target.points[i].x >  x2 ) ) ||
+             ( (target.points[i].y < y1 ) || (target.points[i].y > y2 ) ) )
             continue;
-
-        distance.push_back(model.voronoi[target.points[i].x][target.points[i].y]);
-    }
+        else
+        {
+            xVor = target.points[i].x - ts.transXCenter ;
+            yVor = target.points[i].x - ts.transYCenter ;
+            distance.push_back( model.voronoi[xVor][yVor] );
+        }
 
     sort(distance.begin(), distance.end());
     cout << "Reverse Hausdorff Distance (Voronoi): " << distance.back() << endl;
