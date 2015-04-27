@@ -383,26 +383,31 @@ vector<double> reverse_hausdorff(tsObject ts, Image_Model& target, Image_Model& 
     //make sure there are points to process
     if(target.points.size() == 0)
         return distance;
-    x1 = ts.transXCenter ;
-    x2 = x1 + model.cols ;
-    y1 = ts.transYCenter ;
-    y2 = y1 + model.rows ;
+    int x1 = ts.transXCenter ;
+    int x2 = x1 + model.cols ;
+    int y1 = ts.transYCenter ;
+    int y2 = y1 + model.rows ;
+
 
     for(  unsigned int i = 0; i < target.points.size(); i++)
     {
-        //Continue if index outside of model space
-        if(  ( (target.points[i].x < x1) || (target.points[i].x >  x2 ) ) ||
-             ( (target.points[i].y < y1 ) || (target.points[i].y > y2 ) ) )
-            continue;
-        else
+
+        /*//Continue if index outside of model space
+        if(  ( !((target.points[i].x < model.cols)&&(target.points[i].x > 0 )) ) ||
+             ( !((target.points[i].y < model.rows )&&(target.points[i].y > 0 )) ) )
         {
-            xVor = target.points[i].x - ts.transXCenter ;
-            yVor = target.points[i].x - ts.transYCenter ;
+            continue;
+        }*/
+        if( (target.points[i].x >= x1)&&(target.points[i].x<x2)&&(target.points[i].y>=y1)&&(target.points[i].y<y2) )
+        {
+            int xVor = target.points[i].x - ts.transXCenter ;
+            int yVor = target.points[i].y - ts.transYCenter ;
             distance.push_back( model.voronoi[xVor][yVor] );
         }
+    }
 
     sort(distance.begin(), distance.end());
-    cout << "Reverse Hausdorff Distance (Voronoi): " << distance.back() << endl;
+    //cout << "Reverse Hausdorff Distance (Voronoi): " << distance.back() << endl;
 
    //printf("time to calculate hausdorff (voronoi): %f\n", (double)(clock() - t)/CLOCKS_PER_SEC );
 
@@ -487,9 +492,9 @@ bool equal(Image& image1, Image& image2)
    Author: Hannah Aker
    Description: Finds interesting transformation spaces
  ************************************************************************/
-
 vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh = 1, float percentList = 1.0, int alpha = 1)
 {
+    cout << "Decomp!" << endl;
     vector<tsObject> realMatches;
 
     // initialize our first transformation space paramaters
@@ -714,7 +719,7 @@ void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
     point p1, p2, p3, p4;
     for(unsigned int i = 0; i < ts.size(); i++)
     {
-        printf("vector not empty!");
+        //printf("vector not empty!");
         p1.x = ts[i].transXCenter;
         p1.y = ts[i].transYCenter;
         p2.x = ts[i].transXCenter + (cols * ts[i].scaleXCenter);
@@ -747,11 +752,11 @@ vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target
 
    for( unsigned int i = 0; i < matches.size(); i++ )
     {
-    vector<point> targetPointsTrans = transform(matches[i], target);
-    target.points = targetPointsTrans;
+    //vector<point> targetPointsTrans = transform(matches[i], target);
+    //target.points = targetPointsTrans;
     //cout << "Transformed it!" << endl;
-    vector<double> r_haus = reverse_hausdorff(target, model);
-    cout << "Reversed it!!" << endl;
+    vector<double> r_haus = reverse_hausdorff(matches[i], target, model);
+    //cout << "Reversed it!!" << endl;
 
     int hausIndex = percentList * (r_haus.size()-1);
 
@@ -761,9 +766,9 @@ vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target
     {
         goodMatches.push_back(matches[i]);
     }
-    target.points = orgTargetPoints;
+    //target.points = orgTargetPoints;
 }
-
+cout << "Finished Valid Matches!!" << endl;
    return goodMatches;
 
 

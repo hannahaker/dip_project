@@ -79,7 +79,7 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 
     matches = decomp(target, model, thresh, 1.0, 1);
 
-    goodMatches = validMatches(matches, target, model, thresh, 1.0);
+    goodMatches = validMatches(matches, target, model, thresh, 0.95);
 
 
     /*printf("---------- Start -------------\n");
