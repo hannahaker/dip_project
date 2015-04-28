@@ -296,16 +296,9 @@ int Image_Model::push_neighbors(queue<point> &q, point p)
  * @author Zachary Pierson
  *
  * @par Description:
- * Image_Model Constructor - Constructs Image_Model object from Image
- *
- * @param[in,out] image1 - the target image to search
+ * Image_Model match - Rescale image close to the size of the given image
  *
  *****************************************************************************/
-/************************************************************************
-   Function: Image_Model match
-   Author: Zachary Pierson
-   Description: Rescale image close to the size of the given image
- ************************************************************************/
 bool Image_Model::match(Image& img)
 {
     rescale( image, img.Height(), img.Width() );
@@ -317,48 +310,12 @@ bool Image_Model::match(Image& img)
  * @author Zachary Pierson
  *
  * @par Description:
- * Image_Model Constructor - Constructs Image_Model object from Image
- *
- * @param[in,out] image1 - the target image to search
+ * Image_Model Destructor - Frees memory allocated for voronoi surface
  *
  *****************************************************************************/
-/************************************************************************
-   Function: Image_Model thin
-   Author: Zachary Pierson
-   Description: Successive thinnings until there is no more change. This
-        allows a smaller set of points to work with for the Hausdorff
- ************************************************************************/
-bool Image_Model::thin()
-{
-    Image prev(image);
-
-    thinBinaryZS( image );
-
-    while( !equal(image, prev) )
-    {
-        prev = image;
-        thinBinaryZS( image );
-    }
-
-    return true;
-}
-
-/**************************************************************************//**
- * @author Zachary Pierson
- *
- * @par Description:
- * Image_Model Constructor - Constructs Image_Model object from Image
- *
- * @param[in,out] image1 - the target image to search
- *
- *****************************************************************************/
-/************************************************************************
-   Function: Image_Model Destructor
-   Author: Zachary Pierson
-   Description: Frees memory allocated for voronoi surface
- ************************************************************************/
 Image_Model::~Image_Model()
 {
+    // release memory
     for( unsigned int i = 0; i < cols; i++ )
         free( voronoi[i] );
     free( voronoi );
