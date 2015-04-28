@@ -15,6 +15,7 @@ int main( int argc, char *argv[] )
 {
     faceDetection obj;
     ImageApp app( argc, argv );
+    app.setApplicationName("Face Detection");
     app.AddActions( &obj );
     return app.Start();
 }
@@ -39,11 +40,11 @@ int main( int argc, char *argv[] )
 bool faceDetection::Menu_Hausdorff_RunHausdorff( Image& image1 )
 {
     Image image2;
-    int thresh = 10;
+    int thresh = 7;
     double forwardP = 1.0;
     double reverseP = 0.95;
-    bool runPreProcImage = false;
-    bool runPreProcModel = false;
+    bool runPreProcImage = true;
+    bool runPreProcModel = true;
 
 
     //int thresh = 10;
