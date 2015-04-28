@@ -1,79 +1,5 @@
 #ifndef HEADER_H
 #define HEADER_H
-/*************************************************************************//**
- * @file
- *
- * @brief This file contains the main function and other functions to
- *        read puzzle criteria from file, solve knights tour
- *        puzzle, and output solution to file.
- *
- * @mainpage Program 3 - Knights Tour
- *
- * @section course_section Course Information
- *
- * @author Steven Huerta
- *
- * @date May 8, 2013
- *
- * @par Professor:
- *         Roger Schrader
- *
- * @par Course:
- *         CSC 250 - M001 - 10:00am
- *
- * @par Location:
- *         Classroom Building - 116
- *
- * @section program_section Program Information
- *
- * @details This program will emulate a knight piece on a chess board at a
- * starting position, and find a solution to land on every square of the
- * board only once. Therefore, a knight's tour. The program will read in a
- * file containing conditions for each puzzle. The conditions are: 1) The
- * dimension of the board 2) The start row and column from which to move.
- *
- * The program will then permute the moves on the chess board for a knight in
- * a clockwise manner, starting from 11 o'clock and continuing through to the
- * 10 o'clock position. The program will return the first solution to the
- * puzzle. Otherwise, it will continue until all possible moves have been
- * exhausted. The result will be output to a file with the same name as the
- * input file, but with "out.txt" appended to the end.
- *
- * The program will then look for the next puzzle in the input file, and
- * continue through each puzzle until all puzzles have been processed.
- *
- *
- * @section compile_section Compiling and Usage
- *
- * @par Compiling Instructions:
- *      None
- *
- * @par Usage:
-   @verbatim
-   c:\> prog3.exe inputfile.txt
-   d:\> c:\bin\<prog>.exe inputfile.txt
-
-   [inputfile.txt] file that contains puzzles
-
-
-   @endverbatim
- *
- * @section todo_bugs_modification_section Todo, Bugs, and Modifications
- *
- *
- * @par Modifications and Development Timeline:
-   @verbatim
-   Date          Modification
-   ------------  --------------------------------------------------------------
-   Mar 30, 2013  Wrote main , open and read from input file
-                 Wrote functions to create and initialize board
-   Mar 31, 2013  Wrote functions to move knight
-                 Modified functions to permute solution to knight tour
-                 Wrote functions create and output to file
-   Apr  8, 2013  Finish documentation
-   @endverbatim
- *
- *****************************************************************************/
 
 #pragma once
 #include <qtimagelib.h>
@@ -90,18 +16,15 @@
 using namespace std;
 
 
+/*!
+ * @brief Object to contain x,y coordinates
+ */
 struct point
 {
     int x;
     int y;
 };
 
-struct Transformation
-{
-    int x;
-    int y;
-    double scale;
-};
 
 /*********************** facedetection.cpp ***************************/
 class faceDetection: public QObject
@@ -112,35 +35,97 @@ public slots:
 // the following methods add actions to the menu bar
 // note the prototype and naming convention: Menu_Menubar_Menuitem
 // all menu items must be prototyped in the "public slots" section
+
+    /*!
+     * @brief Menu_Hausdorff_RunHausdorff to run hausdorff
+     * comparison
+     */
     bool Menu_Hausdorff_RunHausdorff( Image& image1 );
+
+    /*!
+     * @brief Menu_Preprocessing_SuccessiveThinning to apply
+     * successive thinning to image
+     */
     bool Menu_Preprocessing_SuccessiveThinning( Image &image );
+
+    /*!
+     * @brief Menu_Preprocessing_BinaryThreshold to apply binary
+     * threshold to image
+     */
     bool Menu_Preprocessing_BinaryThreshold( Image &image );
+
+    /*!
+     * @brief Menu_Preprocessing_Sobel to apply edge detector
+     * to image
+     */
     bool Menu_Preprocessing_Sobel( Image &image );
+
+    /*!
+     * @brief Menu_Preprocessing_GaussianSmoothing to
+     * apply smoothing to image
+     */
     bool Menu_Preprocessing_GaussianSmoothing( Image &image );
 
 };
 
 
 /*********************** imagemodel.cpp ***************************/
+
+/*!
+ * @brief Image_Model holds image and image properties
+ */
 class Image_Model
 {
     public:
+        /*!
+         * @brief CONSTRUCTOR
+         */
         Image_Model(Image& img);
+
+        /*!
+         * @brief DESTRUCTOR
+         */
         ~Image_Model();
 
+        /*!
+         * @brief init_points sets points to vector and
+         * returns size of vector
+         */
         unsigned int init_points();
+
+        /*!
+         * @brief push_neighbors, NOT IMPLEMENTED
+         */
         int push_neighbors( queue<point> &q, point p);
+
+        /*!
+         * @brief init_voronoi, NOT IMPLEMENTED
+         */
         void init_voronoi();
+
+        /*!
+         * @brief init_voronoi_mask creates the 2D array of the
+         * voronoi surface
+         */
         void init_voronoi_mask();
+
+        /*!
+         * @brief display_voronoi outputs the voronoi surface
+         */
         void display_voronoi();
+
+        /*!
+         * @brief match Rescale image close to the size of the
+         * given image
+         */
         bool match(Image& img);
 
-        vector<point> points;
-        double ** voronoi;
-        unsigned int cols;
-        unsigned int rows;
-        Image image;
-        Transformation trans;
+        vector<point> points;   // Set of coordinates of image
+        double ** voronoi;      // Array holding voronoi surface
+        unsigned int cols;      // width of the image
+        unsigned int rows;      // height of the image
+        Image image;            // holds a copy of the image
+
 };
 
 /*********************** tsobject.cpp ***************************/
@@ -153,44 +138,109 @@ public:
     tsObject( int tXMin, int tXMax, int tYMin, int tYMax,
               int sXMin = 1, int sXMax = 1, int sYMin = 1, int sYMax = 1) ;
 
+    // Set the bounds of translations in the x dimension
     int transXMin ;
     int transXMax ;
     int transXCenter ;
 
+    // Set the bounds of translation in the y dimension
     int transYMin ;
     int transYMax ;
     int transYCenter ;
 
+    // Set the bounds of scaling in the y dimension
     int scaleXMin ;
     int scaleXMax ;
     int scaleXCenter ;
 
+    // Set the bounds of scaling in the y dimension
     int scaleYMin ;
     int scaleYMax ;
     int scaleYCenter ;
 
+    // Set the bounds of rotations, NOT USED
     int rotThetaMin ;
     int rotThetaMax ;
     int rotThetaCenter ;
 
+    // Overloaded function for equals to copy tsObject objects
     tsObject operator= ( const tsObject &rhs);
 };
 
 /*********************** hausdorff.cpp ***************************/
+/*!
+ * @brief thin applies thinning to the image
+ */
 bool thin( Image& image );
+
+/*!
+ * @brief equal checks if images are equal
+ */
 bool equal(Image& image1, Image& image2);
 
+/*!
+ * @brief euclidean_dist, calculate distance between two points
+ */
 double euclidean_dist(point A, point B);
-vector<double> forward_hausdorff(vector<point> modelPoints, Image_Model& target);
-vector<double> reverse_hausdorff(tsObject ts, Image_Model& target, Image_Model& model);
-vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
 
-vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh, float percentList, int alpha);
+/*!
+ * @brief forward_hausdorff calculate the foward partial HD
+ */
+vector<double> forward_hausdorff(vector<point> modelPoints,
+                                 Image_Model& target);
+
+/*!
+ * @brief reverse_hausdorff calculate the reverse partial HD
+ */
+vector<double> reverse_hausdorff(tsObject ts, Image_Model& target,
+                                 Image_Model& model);
+
+/*!
+ * @brief directed_hausdorff, exact distance NOT USED
+ */
+vector<double> directed_hausdorff( vector<point>& B,
+                                   vector<point>& A);
+
+/*!
+ * @brief decomp evaluate how to divide tranformation space
+ */
+vector<tsObject> decomp(Image_Model& target, Image_Model& model,
+                        float pixelErrorThresh, float percentList,
+                        int alpha);
+
+/*!
+ * @brief calcGamma calculates distance of transforms in transform
+ * space
+ */
 double calcGamma( tsObject tsObj, int xMax, int yMax);
-bool isInteresting( tsObject & transSpace, Image_Model & target, Image_Model & model, float percentList, int threshold );
+
+/*!
+ * @brief isInteresting evaluate if area holds possible matches
+ */
+bool isInteresting( tsObject & transSpace, Image_Model & target,
+                    Image_Model & model, float percentList,
+                    int threshold );
+
+/*!
+ * @brief divide Divides transform space into subspaces
+ */
 vector<tsObject> divide( tsObject trfSpace );
+
+/*!
+ * @brief transform Applies transform to model points
+ */
 vector<point> transform(tsObject ts, Image_Model & transImage );
+
+/*!
+ * @brief draw_box Draws a box around confirmed matches
+ */
 void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols);
-vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target, Image_Model & model, double thresh, int percentList );
+
+/*!
+ * @brief validMatches evaluates and confirms matches
+ */
+vector<tsObject> validMatches ( vector<tsObject> & matches,
+                                Image_Model & target, Image_Model & model,
+                                double thresh, int percentList );
 
 #endif // HEADER_H

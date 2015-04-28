@@ -499,15 +499,13 @@ vector<tsObject> divide( tsObject ts )
  * @returns vector<point> - vector of transformed points
  *
  *****************************************************************************/
-/************************************************************************
-   Function: transform
-   Author: Steven Heurta
-   Description: transforms list of points
- ************************************************************************/
 vector<point> transform(tsObject ts, Image_Model & transImage )
 {
     point temp;
+    // list to hold our transformed points
     vector<point> points;
+
+    // for each point in the model, apply transform to point
     for( int i = 0; i < (int)transImage.points.size(); i++)
     {
         temp.x = transImage.points[i].x *ts.scaleXCenter + ts.transXCenter;
@@ -518,25 +516,24 @@ vector<point> transform(tsObject ts, Image_Model & transImage )
 }
 
 /**************************************************************************//**
- * @author Zachary Pierson
+ * @author Hannah Aker
  *
  * @par Description:
- * Image_Model Constructor - Constructs Image_Model object from Image
+ * draw_box - draws boxes around transformation spaces
  *
- * @param[in,out] image1 - the target image to search
+ * @param[in,out] image - original image of target
+ * @param[in,out] ts - object containing transformation space
+ * @param[in] rows - model height
+ * @param[in] cols - model width
  *
  *****************************************************************************/
-/************************************************************************
-   Function: Hannah Aker
-   Author: Steven Heurta
-   Description: draws boxes around transformation spaces
- ************************************************************************/
 void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
 {
+    // four points for the corners of our outline box
     point p1, p2, p3, p4;
     for(unsigned int i = 0; i < ts.size(); i++)
     {
-        //printf("vector not empty!");
+        // set the corners to the transformed model
         p1.x = ts[i].transXCenter;
         p1.y = ts[i].transYCenter;
         p2.x = ts[i].transXCenter + (cols * ts[i].scaleXCenter);
@@ -546,6 +543,7 @@ void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
         p4.x = ts[i].transXCenter + (cols * ts[i].scaleXCenter);
         p4.y = ts[i].transYCenter + (rows * ts[i].scaleYCenter);
 
+        // draw the lines
         image.DrawLine(p1.x, p1.y, p2.x, p2.y, Pixel(0,255,0));
         image.DrawLine(p1.x, p1.y, p3.x, p3.y, Pixel(0,255,0));
         image.DrawLine(p2.x, p2.y, p4.x, p4.y, Pixel(0,255,0));
@@ -554,45 +552,51 @@ void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols)
 }
 
 /**************************************************************************//**
- * @author Zachary Pierson
+ * @author Hannah Aker, Zachary Pierson, Steven Huerta
  *
  * @par Description:
- * Image_Model Constructor - Constructs Image_Model object from Image
+ * validMatches - weeds out matches based on reverse Hausdorff
  *
- * @param[in,out] image1 - the target image to search
+ * @param[in,out] matches - list of transformation spaces
+ * @param[in,out] target - Image_model object of the target image
+ * @param[in,out] model - Image_model object of the model image
+ * @param[in] rows - model height
+ * @param[in] cols - model width
+ *
+ * @returns vector<tsObject> - list containing transformation spaces
  *
  *****************************************************************************/
-/************************************************************************
-   Function: validFaces
-   Author: Steven Heurta
-   Description: weeds out matches based on reverse Hausdorff
- ************************************************************************/
-vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target, Image_Model & model, double threshold, int percentList = 1.0 )
+vector<tsObject> validMatches ( vector<tsObject> & matches,
+                                Image_Model & target, Image_Model & model,
+                                double threshold, int percentList = 1.0 )
 {
+    // setup a list for our confirmed matches
     vector<tsObject> goodMatches;
-    cout << "Valid Matches!" << endl;
+
+    // set up a vector of points from the image
     vector<point> orgTargetPoints = target.points;
 
-
-
-   for( unsigned int i = 0; i < matches.size(); i++ )
+    // for each of the matches found
+    for( unsigned int i = 0; i < matches.size(); i++ )
     {
-    //vector<point> targetPointsTrans = transform(matches[i], target);
-    //target.points = targetPointsTrans;
-    //cout << "Transformed it!" << endl;
-    vector<double> r_haus = reverse_hausdorff(matches[i], target, model);
-    //cout << "Reversed it!!" << endl;
+        // get the list of partial reverse-box hausdorff distances
+        vector<double> r_haus = reverse_hausdorff(matches[i], target, model);
 
-    int hausIndex = percentList * (r_haus.size()-1);
+        // calculate the index in the list to reference from the reverse
+        // distances
+        int hausIndex = percentList * (r_haus.size()-1);
 
-    double hausDist = r_haus.at(hausIndex);
+        // get the distance at the index
+        double hausDist = r_haus.at(hausIndex);
 
-    if( hausDist < threshold )
-    {
-        goodMatches.push_back(matches[i]);
+        // if the distance is less than the threshold push it into
+        // the confirmed list of good matches
+        if( hausDist < threshold )
+        {
+            goodMatches.push_back(matches[i]);
+        }
+        //target.points = orgTargetPoints;
     }
-    //target.points = orgTargetPoints;
-}
 cout << "Finished Valid Matches!!" << endl;
    return goodMatches;
 

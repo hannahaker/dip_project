@@ -30,11 +30,6 @@ Image_Model::Image_Model( Image& img )
             exit(1);
     }
 
-
-    init_points();
-    trans.x = 0;
-    trans.y = 0;
-    trans.scale = 1.0;
 }
 
 /**************************************************************************//**

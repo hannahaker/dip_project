@@ -1,3 +1,43 @@
+/*************************************************************************//**
+ * @file
+ *
+ * @brief This file contains the central functions that support the
+ * implementation of the object detection application
+ *
+ * @mainpage Program 3 - Face Detection Using Hausdorff
+ *
+ * @section course_section Course Information
+ *
+ * @author Steven Huerta
+ *
+ * @date May 8, 2013
+ *
+ * @par Professor:
+ *         Roger Schrader
+ *
+ * @par Course:
+ *         CSC 442/542
+ *
+ * @section program_section Program Information
+ *
+ * @details This program uses the hausdorff distance to calculate
+ * a match between a model (what is being looked for) and the image
+ * (where the model may be found). If the model is found, a
+ * green square is drawn around the image.
+ *
+ * This implementation utilizes the reduction in transformation space
+ * to more quickly isolate transformations that may be good
+ * matches. Afterwards, these tranformations are confirmed or
+ * rejected by applying the partial reverse-box hausdorff distance.
+ *
+ *
+ * @section todo_bugs_modification_section Todo, Bugs, and Modifications
+ *
+ * Detection is still being dialed in. While successful with basic shapes
+ * with uniform backgrounds, we have yet to find a good set of heuristics to
+ * yield matches while excluding false matches
+ *
+ *****************************************************************************/
 #include "header.h"
 
 /**************************************************************************//**
@@ -130,7 +170,17 @@ bool faceDetection::Menu_Hausdorff_RunHausdorff( Image& image1 )
 }
 
 
-
+/**************************************************************************//**
+ * @author Dr. Weiss
+ *
+ * @par Description:
+ * Applies Gaussian smoothing to the image
+ *
+ * @param[in,out] image - image
+ *
+ * @returns true - function completed successfully
+ *
+ *****************************************************************************/
 bool faceDetection::Menu_Preprocessing_GaussianSmoothing( Image &image )
 {
     double sigma = 2.0;
@@ -139,12 +189,34 @@ bool faceDetection::Menu_Preprocessing_GaussianSmoothing( Image &image )
     return true;
 }
 
+/**************************************************************************//**
+ * @author Dr. Weiss
+ *
+ * @par Description:
+ * Applies Sobel edge detection to image
+ *
+ * @param[in,out] image - image
+ *
+ * @returns true - function completed successfully
+ *
+ *****************************************************************************/
 bool faceDetection::Menu_Preprocessing_Sobel( Image &image )
 {
     sobel( image );
     return true;
 }
 
+/**************************************************************************//**
+ * @author Dr. Weiss
+ *
+ * @par Description:
+ * Applies Binary Thresholding to the image
+ *
+ * @param[in,out] image - image
+ *
+ * @returns true - function completed successfully
+ *
+ *****************************************************************************/
 bool faceDetection::Menu_Preprocessing_BinaryThreshold( Image &image )
 {
     int thresh = 128;
@@ -154,6 +226,17 @@ bool faceDetection::Menu_Preprocessing_BinaryThreshold( Image &image )
     return true;
 }
 
+/**************************************************************************//**
+ * @author Dr. Weiss
+ *
+ * @par Description:
+ * Applies Successive Thinning smoothing to the image
+ *
+ * @param[in,out] image - image
+ *
+ * @returns true - function completed successfully
+ *
+ *****************************************************************************/
 bool faceDetection::Menu_Preprocessing_SuccessiveThinning( Image &image )
 {
     thin( image );
