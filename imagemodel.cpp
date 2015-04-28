@@ -301,7 +301,7 @@ int Image_Model::push_neighbors(queue<point> &q, point p)
  *****************************************************************************/
 bool Image_Model::match(Image& img)
 {
-    // resclase
+    // rescales image
     rescale( image, img.Height(), img.Width() );
 
     return true;
