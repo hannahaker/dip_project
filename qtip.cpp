@@ -113,8 +113,10 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
         if ( !Dialog( "pixel error threshold" ).Add( thresh, "Threshold", 1, 30 ).Show() )
             return false;
 
+    // store matches found using partial forward HD
     matches = decomp(target, model, thresh, 1.0, 1);
 
+    // store matches validated through the partial box-reverse HD
     goodMatches = validMatches(matches, target, model, thresh, 0.95);
 
 
@@ -141,10 +143,9 @@ bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 */
 
 
-
+    // Draw boxes around all the matches
     draw_box(image1, goodMatches, model.rows, model.cols);
 
-//    image.DrawLine(5, 200, 5, 5, Pixel(0,255,0));
     return true;
 }
 
