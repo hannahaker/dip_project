@@ -15,7 +15,6 @@ int main( int argc, char *argv[] )
 {
     faceDetection obj;
     ImageApp app( argc, argv );
-    app.setApplicationName("Face Detection");
     app.AddActions( &obj );
     return app.Start();
 }
