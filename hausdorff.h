@@ -45,7 +45,7 @@
 
 using namespace std;
 
- /*********************** structures ***************************/
+/*********************** structures ***************************/
 struct point
 {
     int x;
@@ -60,27 +60,7 @@ struct Transformation
 };
 
  /*********************** class interfaces ***************************/
-class Image_Model
-{
-    public:
-        Image_Model(Image& img);
-        ~Image_Model();
 
-        unsigned int init_points();
-        int push_neighbors(queue<point> &q, point p);
-        void init_voronoi();
-        void init_voronoi_mask();
-        void display_voronoi();
-        bool match(Image& img);
-        bool thin();
-
-        vector<point> points;
-        double ** voronoi;
-        unsigned int cols;
-        unsigned int rows;
-        Image image;
-        Transformation trans;
-};
 
 
  /*********************** function prototypes ***************************/
@@ -89,7 +69,6 @@ double euclidean_dist(point A, point B);
 vector<double> forward_hausdorff(vector<point> modelPoints, Image_Model& target);
 vector<double> reverse_hausdorff(tsObject ts, Image_Model& target, Image_Model& model);
 vector<double> directed_hausdorff( vector<point>& B, vector<point>& A);
-bool equal(Image& image1, Image& image2);
 
 vector<tsObject> decomp(Image_Model& target, Image_Model& model, float pixelErrorThresh, float percentList, int alpha);
 double calcGamma( tsObject tsObj, int xMax, int yMax);
