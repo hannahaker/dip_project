@@ -7,7 +7,7 @@
    Description: Successive thinnings until there is no more change. This
         allows a smaller set of points to work with for the Hausdorff
  ************************************************************************/
-bool thin(Image &image)
+bool thin(Image& image)
 {
     Image prev(image);
 

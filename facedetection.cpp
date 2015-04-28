@@ -156,6 +156,6 @@ bool faceDetection::Menu_Preprocessing_BinaryThreshold( Image &image )
 
 bool faceDetection::Menu_Preprocessing_SuccessiveThinning( Image &image )
 {
-    //thin( image );
+    thin( image );
     return true;
 }
