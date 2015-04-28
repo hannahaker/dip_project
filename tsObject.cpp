@@ -1,4 +1,4 @@
-#include "tsObject.h"
+#include "header.h"
 
 tsObject::tsObject( int tXMin, int tXMax, int tYMin, int tYMax,
                     int sXMin, int sXMax, int sYMin, int sYMax )

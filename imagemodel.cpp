@@ -1,4 +1,4 @@
-#include "imagemodel.h"
+#include "header.h"
 
 /**************************************************************************//**
  * @author Zachary Pierson

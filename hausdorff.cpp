@@ -1,4 +1,49 @@
-#include "hausdorff.h"
+#include "header.h"
+
+
+/************************************************************************
+   Function: Image_Model thin
+   Author: Zachary Pierson
+   Description: Successive thinnings until there is no more change. This
+        allows a smaller set of points to work with for the Hausdorff
+ ************************************************************************/
+bool thin(Image &image)
+{
+    Image prev(image);
+
+    thinBinaryZS( image );
+
+    while( !equal(image, prev) )
+    {
+        prev = image;
+        thinBinaryZS( image );
+    }
+
+    return true;
+}
+
+/************************************************************************
+   Function: Equal
+   Author: Zachary Pierson
+   Description: Checks to see if two images are the same
+ ************************************************************************/
+bool equal(Image& image1, Image& image2)
+{
+    if(image1.Width() != image2.Width() || image1.Height() != image2.Height())
+        return false;
+
+    for(unsigned int r = 0; r < image1.Height(); r++)
+    {
+        for(unsigned int c = 0; c < image1.Width(); c++)
+        {
+            if(image1[r][c] != image2[r][c])
+                return false;
+        }
+    }
+
+    return true;
+}
+
 /**************************************************************************//**
  * @author Zachary Pierson
  *

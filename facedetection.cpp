@@ -1,3 +1,4 @@
+#include "header.h"
 
 /**************************************************************************//**
  * @author Dr. John Weiss
@@ -41,6 +42,8 @@ bool faceDetection::Menu_Hausdorff_RunHausdorff( Image& image1 )
     int thresh = 10;
     double forwardP = 1.0;
     double reverseP = 0.95;
+    bool runPreProcImage = false;
+    bool runPreProcModel = false;
 
 
     //int thresh = 10;
@@ -52,6 +55,8 @@ bool faceDetection::Menu_Hausdorff_RunHausdorff( Image& image1 )
             .Add( thresh, "Pixel Error Threshold", 1, 30 )
             .Add( forwardP, "Percent of List Used in Forward Hausdorff", 0, 1.0 )
             .Add( reverseP, "Percent of List Used in Reverse Hausdorff", 0, 1.0 )
+            .Add( runPreProcImage, "Run Preprocessing on Image")
+            .Add( runPreProcModel, "Run Preprocessing on Model")
             .Show() )
             return false;
 
@@ -70,22 +75,36 @@ bool faceDetection::Menu_Hausdorff_RunHausdorff( Image& image1 )
     // validation occurs through the partial box-reverse HD
     vector<tsObject> goodMatches;
 
+    if( runPreProcImage )
+    {
     //smooth image to get better result of sobel edge detection
     smoothGaussian( target.image, 2 );
-        //displayImage(target.image, "Gaussian Smoothed Image");
 
     // find edges
     sobel( target.image );
-        //displayImage(target.image, "Sobel Image");
 
     // prepare image for thinning
     binaryThreshold( target.image, 50 );
-        //displayImage(target.image, "Thresholded Image");
 
     // Successive thinnings until there is no more cahnge.
     // This allows a smaller set of points to work with for the Hausdorff
-    target.thin();
-        //displayImage(target.image, "Thinnned image");
+    thin( target.image );
+    }
+    if( runPreProcModel)
+    {
+    //smooth image to get better result of sobel edge detection
+    smoothGaussian( model.image, 2 );
+
+    // find edges
+    sobel( model.image );
+
+    // prepare image for thinning
+    binaryThreshold( model.image, 50 );
+
+    // Successive thinnings until there is no more cahnge.
+    // This allows a smaller set of points to work with for the Hausdorff
+    thin( model.image );
+    }
 
     // get the target points from the image
     if( target.init_points() == 0 )
@@ -110,31 +129,9 @@ bool faceDetection::Menu_Hausdorff_RunHausdorff( Image& image1 )
     return true;
 }
 
-/************************************************************************
-   Function: Image_Model thin
-   Author: Zachary Pierson
-   Description: Successive thinnings until there is no more change. This
-        allows a smaller set of points to work with for the Hausdorff
- ************************************************************************/
-bool thin(Image &image)
-{
-    Image prev(image);
-
-    thinBinaryZS( image );
-
-    while( !equal(image, prev) )
-    {
-        prev = image;
-        thinBinaryZS( image );
-    }
-
-    return true;
-}
 
 
-
-
-bool faceDetection::Menu_Preproccessing_GaussianSmoothing( Image &image )
+bool faceDetection::Menu_Preprocessing_GaussianSmoothing( Image &image )
 {
     double sigma = 2.0;
     if ( !getParams( sigma ) ) return false;
@@ -148,7 +145,7 @@ bool faceDetection::Menu_Preprocessing_Sobel( Image &image )
     return true;
 }
 
-bool faceDetection::Menu_Preproccessing_BinaryThreshold( Image &image )
+bool faceDetection::Menu_Preprocessing_BinaryThreshold( Image &image )
 {
     int thresh = 128;
     if ( !Dialog( "grayscale threshold" ).Add( thresh, "Threshold", 1, 255 ).Show() )
@@ -157,7 +154,7 @@ bool faceDetection::Menu_Preproccessing_BinaryThreshold( Image &image )
     return true;
 }
 
-bool faceDetection::Menu_Preproccessing_SuccessiveThinning( Image &image )
+bool faceDetection::Menu_Preprocessing_SuccessiveThinning( Image &image )
 {
     //thin( image );
     return true;

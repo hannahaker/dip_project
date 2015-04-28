@@ -41,11 +41,17 @@
 #include <cstdio>
 #include <cstdlib>
 #include <algorithm>
-#include <tsObject.h>
+
+//#include <stdio.h>
+
+#include "tsObject.h"
+#include "imagemodel.h"
+#include "facedetection.h"
 
 using namespace std;
 
 /*********************** structures ***************************/
+
 struct point
 {
     int x;
@@ -58,6 +64,7 @@ struct Transformation
     int y;
     double scale;
 };
+
 
  /*********************** class interfaces ***************************/
 

@@ -1,6 +1,13 @@
 #ifndef IMAGEMODEL_H
 #define IMAGEMODEL_H
-#include "facedetection.h"
+//#include "facedetection.h"
+#include "hausdorff.h"
+
+
+using namespace std;
+
+
+
 
 
 class Image_Model
@@ -10,12 +17,11 @@ class Image_Model
         ~Image_Model();
 
         unsigned int init_points();
-        int push_neighbors(queue<point> &q, point p);
+        int push_neighbors( queue<point> &q, point p);
         void init_voronoi();
         void init_voronoi_mask();
         void display_voronoi();
         bool match(Image& img);
-        bool thin();
 
         vector<point> points;
         double ** voronoi;

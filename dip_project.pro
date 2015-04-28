@@ -1,13 +1,8 @@
 
 HEADERS += \
-    qtip.h \
-    tsObject.h \
-    hausdorff.h \
-    facedetection.h \
-    imagemodel.h
+    header.h
 
 SOURCES += \
-    qtip.cpp \
     hausdorff.cpp \
     tsObject.cpp \
     facedetection.cpp \

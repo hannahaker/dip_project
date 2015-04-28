@@ -1,3 +1,5 @@
+#ifndef HEADER_H
+#define HEADER_H
 /*************************************************************************//**
  * @file
  *
@@ -73,8 +75,6 @@
  *
  *****************************************************************************/
 
-#ifndef FACEDETECTION_H
-#define FACEDETECTION_H
 #pragma once
 #include <qtimagelib.h>
 #include <iostream>
@@ -86,6 +86,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <algorithm>
+
+using namespace std;
+
 
 struct point
 {
@@ -110,10 +113,10 @@ public slots:
 // note the prototype and naming convention: Menu_Menubar_Menuitem
 // all menu items must be prototyped in the "public slots" section
     bool Menu_Hausdorff_RunHausdorff( Image& image1 );
-    bool Menu_Preproccessing_SuccessiveThinning( Image &image );
-    bool Menu_Preproccessing_BinaryThreshold( Image &image );
+    bool Menu_Preprocessing_SuccessiveThinning( Image &image );
+    bool Menu_Preprocessing_BinaryThreshold( Image &image );
     bool Menu_Preprocessing_Sobel( Image &image );
-    bool Menu_Preproccessing_GaussianSmoothing( Image &image );
+    bool Menu_Preprocessing_GaussianSmoothing( Image &image );
 
 };
 
@@ -190,5 +193,4 @@ vector<point> transform(tsObject ts, Image_Model & transImage );
 void draw_box(Image& image, vector<tsObject> &ts, int rows, int cols);
 vector<tsObject> validMatches ( vector<tsObject> & matches, Image_Model & target, Image_Model & model, double thresh, int percentList );
 
-#endif // FACEDETECTION_H
-
+#endif // HEADER_H
