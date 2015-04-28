@@ -41,7 +41,7 @@ II. REQUIREMENTS
 ----------------
     *Linix or Windows OS
     *qt4
-    *Dr. Weiss's QtImageLib
+    *QtImageLib
     *g++
 
 
@@ -94,30 +94,58 @@ Compile Instructions:
 
 The QtImageLib will automatically generate a window with basic functionality.
 To run the huasdorff face detection, navigate to the menu bar and click
-"Run" -> "hausdorff".
+"Hausdorff" -> "Run Hausdorff". This will bring up a menu with the following
+options:
+
+*Model Image: This specifys the template (model) that you want to 
+    find in the Image.
+
+*Pixel Error Threshold: The threshold used to determin if a face is
+    detected.
+
+*Percent of List Used in Forward Hausdorff: Specifies the percentage
+    of pixels that need to fall below the threshold for the farward
+    hausdorff to detect a face.
+
+*Percent of List Used in Reverse Hausdorff: Specifies the percentage
+    of pixels that need to fall below the threshold for the reverse
+    hausdorff to detect a face.
+
+*Run Preprocessing on Image: Don't uncheck this unless the image has
+    already been pre-processed.
+
+*Run Preprocessing on Model: This is used in case a model has not been
+    preprocessed.
+
+Click "OK" to run the hausdorff face detection with those options.
 
 
+V. EXAMPLES:
+------------
+The following examples should be run without changes to the menu.
+
+1. Open face_stonehedge.jpg and run huasdorff with faceModel_cathedral.mbp
+    This shows how a model taken from a seperate image can be used as a 
+    general template to find faces in an image.
+
+2. Open boxesAndShapes.png and run huadorff with any of the folloing images:
+        - triangleModel.png
+        - starModel.png
+        - boxModel2.png
+    This Shows the translation property of the hausdorff face detection by
+    recognizing all the shapes of the specifyed model.
 
 
+VI. REFERENCES
+--------------
+1. D.p. Huttenlocher, W.j. Rucklidge, and G.a. Klanderman. "Comparing Images
+    Using the Hausdorff Distance" IEEE Transactions on Pattern Analysis and
+    Machine Intelligence, 1993
 
+2. W.j. Rucklidge. "Efficiently Locating Objects Using the Huasdorff
+    Distance" International Jouranal of Computer Vision, 1997
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+3. W.j. Rucklidge and D.p. Huttenlocher. "A Multi-Resolution Technique"
+    for Comparing Images Using the Hausdorff Distance" Cornell U, Dept. of
+    Computer Science, 1992.
 
