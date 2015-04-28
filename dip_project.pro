@@ -2,12 +2,14 @@
 HEADERS += \
     qtip.h \
     tsObject.h \
-    hausdorff.h
+    hausdorff.h \
+    facedetection.h
 
 SOURCES += \
     qtip.cpp \
     hausdorff.cpp \
-    tsObject.cpp
+    tsObject.cpp \
+    facedetection.cpp
 
 CONFIG += \
     qtimagelib \

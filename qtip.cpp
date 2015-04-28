@@ -16,7 +16,17 @@ Modifications:
 #include <iostream>
 #include <cmath>
 
-// main function will always follow this format
+/**************************************************************************//**
+ * @author Dr. John Weiss
+ *
+ * @par Description:
+ * This function calls the imageLib GUI
+ *
+ * @param[in] argc - argument count from the command line
+ * @param[in] argv - c string from command line
+ *
+ * @returns 0   program executed successfully
+ *****************************************************************************/
 int main( int argc, char *argv[] )
 {
     MyApp obj;
@@ -29,22 +39,48 @@ int main( int argc, char *argv[] )
 // note the prototype and naming convention: Menu_Menubar_Menuitem
 
 // ----------------------------------- Hausdorff ------------------------------------
+
+
+/**************************************************************************//**
+ * @author Zachary Pierson
+ *
+ * @par Description:
+ * GUI Function that allows the user to define two images. The first image
+ * is received as a parameter passed to this function, where we will be
+ * searching matches to our model. The second image defined by the user is the
+ * model that will be used to search the target space. This is defined through
+ * a pop up window requesting the user to select from a list of images or
+ * browse to the desired model
+ *
+ * @param[in,out] image1 - the target image to search
+ *
+ * @returns true   successfully completed function
+ * @returns false  unable to complete function
+ *****************************************************************************/
 bool MyApp::Menu_Run_Hausdorff( Image& image1 )
 {
     Image image2;
     if ( !getParams( image2 ) ) return false;
 
+    // setup image_model objects to store image, voronoi surface of image,
+    // and other properties of the image
     Image_Model target(image1);
     Image_Model model(image2);
-    vector<double> distances;
-    vector<tsObject> matches;
-    vector<tsObject> goodMatches;
-    double f = .80;
 
-    //resize target image to match model image and
-    //reinitialize the points
-    // Taking out match so we are not resizing image
-//    target.match(model.image);
+    // intantiate list containers to hold HD distance values
+    vector<double> distances;
+
+    // intantiate list containers to hold objects containing matching
+    // transformations
+    vector<tsObject> matches;
+
+    // intantiate list containers to hold validated transformations
+    // validation occurs through the partial box-reverse HD
+    vector<tsObject> goodMatches;
+
+    // setup the forward partial distance index to ascending list of
+    // distances. example: f * sizeOfList = nth index to compare
+    double f = .80;
 
     //smooth image to get better result of sobel edge detection
     smoothGaussian( target.image, 2 );

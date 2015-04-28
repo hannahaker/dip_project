@@ -5,6 +5,16 @@
    Author: Zachary Pierson
    Description: Constructs Image_Model object from Image
  ************************************************************************/
+
+/**************************************************************************//**
+ * @author Zachary Pierson
+ *
+ * @par Description:
+ * Image_Model Constructor - Constructs Image_Model object from Image
+ *
+ * @param[in,out] image1 - the target image to search
+ *
+ *****************************************************************************/
 Image_Model::Image_Model( Image& img )
 {
     image = img;
@@ -602,69 +612,69 @@ vector<tsObject> divide( tsObject ts )
                      ts.transYMin , ts.transYCenter,
                      ts.scaleXMin , ts.scaleXMax,
                      ts.scaleYMin , ts.scaleYMax) ;
-    tsObject cell_1_2( ts.transXMin , ts.transXCenter,
-                     ts.transYMin , ts.transYCenter,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYMin , ts.scaleYCenter) ;
-    tsObject cell_1_3( ts.transXMin , ts.transXCenter,
-                     ts.transYMin , ts.transYCenter,
-                     ts.scaleXMin , ts.scaleXCenter,
-                     ts.scaleYCenter , ts.scaleYMax) ;
-    tsObject cell_1_4( ts.transXMin , ts.transXCenter,
-                     ts.transYMin , ts.transYCenter,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_1_2( ts.transXMin , ts.transXCenter,
+//                     ts.transYMin , ts.transYCenter,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYMin , ts.scaleYCenter) ;
+//    tsObject cell_1_3( ts.transXMin , ts.transXCenter,
+//                     ts.transYMin , ts.transYCenter,
+//                     ts.scaleXMin , ts.scaleXCenter,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_1_4( ts.transXMin , ts.transXCenter,
+//                     ts.transYMin , ts.transYCenter,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
 
     tsObject cell_2_1( ts.transXCenter , ts.transXMax,
                        ts.transYMin , ts.transYCenter,
                      ts.scaleXMin , ts.scaleXMax,
                      ts.scaleYMin , ts.scaleYMax) ;
-    tsObject cell_2_2( ts.transXCenter , ts.transXMax,
-                       ts.transYMin , ts.transYCenter,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYMin , ts.scaleYCenter) ;
-    tsObject cell_2_3( ts.transXCenter , ts.transXMax,
-                       ts.transYMin , ts.transYCenter,
-                     ts.scaleXMin , ts.scaleXCenter,
-                     ts.scaleYCenter , ts.scaleYMax) ;
-    tsObject cell_2_4( ts.transXCenter , ts.transXMax,
-                       ts.transYMin , ts.transYCenter,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_2_2( ts.transXCenter , ts.transXMax,
+//                       ts.transYMin , ts.transYCenter,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYMin , ts.scaleYCenter) ;
+//    tsObject cell_2_3( ts.transXCenter , ts.transXMax,
+//                       ts.transYMin , ts.transYCenter,
+//                     ts.scaleXMin , ts.scaleXCenter,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_2_4( ts.transXCenter , ts.transXMax,
+//                       ts.transYMin , ts.transYCenter,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
 
     tsObject cell_3_1( ts.transXMin , ts.transXCenter,
                        ts.transYCenter , ts.transYMax,
                      ts.scaleXMin , ts.scaleXMax,
                      ts.scaleYMin , ts.scaleYMax) ;
-    tsObject cell_3_2( ts.transXMin , ts.transXCenter,
-                       ts.transYCenter , ts.transYMax,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYMin , ts.scaleYCenter) ;
-    tsObject cell_3_3( ts.transXMin , ts.transXCenter,
-                       ts.transYCenter , ts.transYMax,
-                     ts.scaleXMin , ts.scaleXCenter,
-                     ts.scaleYCenter , ts.scaleYMax) ;
-    tsObject cell_3_4( ts.transXMin , ts.transXCenter,
-                       ts.transYCenter , ts.transYMax,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_3_2( ts.transXMin , ts.transXCenter,
+//                       ts.transYCenter , ts.transYMax,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYMin , ts.scaleYCenter) ;
+//    tsObject cell_3_3( ts.transXMin , ts.transXCenter,
+//                       ts.transYCenter , ts.transYMax,
+//                     ts.scaleXMin , ts.scaleXCenter,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_3_4( ts.transXMin , ts.transXCenter,
+//                       ts.transYCenter , ts.transYMax,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
 
     tsObject cell_4_1( ts.transXCenter , ts.transXMax,
                        ts.transYCenter , ts.transYMax,
                      ts.scaleXMin , ts.scaleXMax,
                      ts.scaleYMin , ts.scaleYMax) ;
-    tsObject cell_4_2( ts.transXCenter , ts.transXMax,
-                       ts.transYCenter , ts.transYMax,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYMin , ts.scaleYCenter) ;
-    tsObject cell_4_3( ts.transXCenter , ts.transXMax,
-                       ts.transYCenter , ts.transYMax,
-                     ts.scaleXMin , ts.scaleXCenter,
-                     ts.scaleYCenter , ts.scaleYMax) ;
-    tsObject cell_4_4( ts.transXCenter , ts.transXMax,
-                       ts.transYCenter , ts.transYMax,
-                     ts.scaleXCenter , ts.scaleXMax,
-                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_4_2( ts.transXCenter , ts.transXMax,
+//                       ts.transYCenter , ts.transYMax,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYMin , ts.scaleYCenter) ;
+//    tsObject cell_4_3( ts.transXCenter , ts.transXMax,
+//                       ts.transYCenter , ts.transYMax,
+//                     ts.scaleXMin , ts.scaleXCenter,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
+//    tsObject cell_4_4( ts.transXCenter , ts.transXMax,
+//                       ts.transYCenter , ts.transYMax,
+//                     ts.scaleXCenter , ts.scaleXMax,
+//                     ts.scaleYCenter , ts.scaleYMax) ;
 
     subTransformSpace.push_back( cell_1_1 ) ;
 //    subTransformSpace.push_back( cell_1_2 ) ;
